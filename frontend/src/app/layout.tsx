@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Outfit, Poppins,Nanum_Myeongjo } from "next/font/google";
 import "./globals.css";
-import Navbar from "./components/Navbar";
+import Navbar from "../components/Navbar";
 
 const inter = Nanum_Myeongjo({
   weight: ["400","700", "800"],
@@ -35,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${outfit.variable} ${poppins.variable} antialiased px-4 sm:px-10 md:px-20 mt-5`}
+        className={`${inter.variable} ${outfit.variable} ${poppins.variable} antialiased`}
       >
 
         {children}

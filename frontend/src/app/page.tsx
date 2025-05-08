@@ -1,27 +1,31 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import Navbar from "./components/Navbar";
+import Navbar from "@/components/Navbar";
 import { motion } from "framer-motion";
+import { AnimatedTestimonialsDemo } from "@/components/Testimonials";
+import { Footer } from "@/components/Footer";
+
 
 export default function Home() {
   return (
-    <main className="flex flex-col gap-15">
-      <section className="flex">
+    <main className="flex flex-col">
+      {/* Navbar Section */}
+      <section className="flex px-4 sm:px-10 md:px-20 mt-5 mb-15">
         <Navbar />
       </section>
 
-      <section className="flex flex-col md:flex-row items-center justify-between">
-        {/* Left Side */}
+      {/* Hero Section */}
+      <section className="flex flex-col md:flex-row items-center justify-between px-4 sm:px-10 md:px-20 mt-5 mb-15">
+
         <div className="lg:w-[50%] flex flex-col gap-7">
           <h1 className="font-poppins text-4xl md:text-5xl font-bold leading-tight">
             Unleash Innovation with{" "}
             <span className="relative inline-block">
-
               <motion.span
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
+                transition={{ duration: 1, ease: "easeInOut" }}
                 className="absolute left-0 top-0 h-full bg-yellow-300/70 z-[-1] rounded-md"
               />
               Hackaholics 🚀
@@ -34,12 +38,12 @@ export default function Home() {
 
           <div className="flex flex-col gap-4 font-outfit lg:flex-row">
             <Link href="/register">
-              <button className="hover:bg-yellow-300/60 bg-yellow-300/70 text-black font-semibold py-3 px-4 rounded-lg w-full cursor-pointer">
+              <button className="hover:bg-yellow-300/60 bg-yellow-300/70 text-black font-semibold p-4 rounded-lg w-full cursor-pointer">
                 🚀 Participate in Hackathons
               </button>
             </Link>
             <Link href="/host">
-              <button className="bg-black hover:bg-gray-800 text-white font-semibold py-3 px-4 rounded-lg w-full cursor-pointer">
+              <button className="bg-black hover:bg-gray-800 text-white font-semibold p-4 rounded-lg w-full cursor-pointer">
                 🎯 Host Your Hackathon
               </button>
             </Link>
@@ -58,6 +62,68 @@ export default function Home() {
           />
         </div>
       </section>
+
+      {/* Featured Hackathons */}
+      <section className="flex flex-col mt-16  gap-15 md:gap-20 px-4 sm:px-10 md:px-20 mb-15">
+        <div className="text-2xl md:text-4xl font-poppins font-semibold">
+          <h1>Hackathons For You</h1>
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-6 font-outfit">
+
+          <div className="border rounded-lg p-6 shadow hover:shadow-lg transition w-full md:w-1/4 flex flex-col gap-10">
+            <h2 className="font-semibold text-lg">AI Innovators Hackathon</h2>
+            <p className="text-gray-600 text-sm">Compete with the best minds in AI and win exciting prizes!</p>
+            <Link href="/hackathons/ai-innovators" className="text-yellow-500 font-medium mt-auto">
+              View Details →
+            </Link>
+          </div>
+
+          <div className="border rounded-lg p-6 shadow hover:shadow-lg transition w-full md:w-1/4 flex flex-col gap-10">
+            <h2 className="font-semibold text-lg">Web3 Revolution</h2>
+            <p className="text-gray-600 text-sm">Dive into blockchain and decentralized apps. Rewards await!</p>
+            <Link href="/hackathons/web3-revolution" className="text-yellow-500 font-medium mt-auto">
+              View Details →
+            </Link>
+          </div>
+
+          <div className="border rounded-lg p-6 shadow hover:shadow-lg transition w-full md:w-1/4 flex flex-col gap-10">
+            <h2 className="font-semibold text-lg">Healthcare Hack 2.0</h2>
+            <p className="text-gray-600 text-sm">Solve real-world healthcare problems and make an impact.</p>
+            <Link href="/hackathons/healthcare-hack" className="text-yellow-500 font-medium mt-auto">
+              View Details →
+            </Link>
+          </div>
+
+          <div className="border rounded-lg p-6 shadow hover:shadow-lg transition w-full md:w-1/4 flex flex-col gap-10">
+            <h2 className="font-semibold text-lg">EduTech Sprint</h2>
+            <p className="text-gray-600 text-sm">Build tools that change how students learn and grow.</p>
+            <Link href="/hackathons/edutech-sprint" className="text-yellow-500 font-medium mt-auto">
+              View Details →
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-4 text-center">
+          <Link href="/hackathons" className="text-white font-medium hover:bg-yellow-300/80 hover:text-black font-outfit p-5 bg-black rounded-lg duration-200">
+            Browse All Hackathons →
+          </Link>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="bg-yellow-300/70 text-black py-16 px-4 mt-5 sm:px-10 md:px-20 max-h-[150vh] md:max-h-[100vh]">
+        <h2 className="text-3xl md:text-4xl font-poppins font-semibold mb-12">
+          What Our Community Says
+        </h2>
+        <AnimatedTestimonialsDemo />
+      </section>
+
+      {/* Footer Section */}
+      <section className="">
+        <Footer />
+      </section>
+
     </main>
   );
 }
