@@ -74,7 +74,7 @@ export default function Home() {
           <div className="border rounded-lg p-6 shadow hover:shadow-lg transition w-full md:w-1/4 flex flex-col gap-10">
             <h2 className="font-semibold text-lg">AI Innovators Hackathon</h2>
             <p className="text-gray-600 text-sm">Compete with the best minds in AI and win exciting prizes!</p>
-            <Link href="/hackathons/ai-innovators" className="text-yellow-500 font-medium mt-auto">
+            <Link href="/hackathons/ai-innovators" className="text-black hover:underline hover:underline-offset-4 hover:decoration-yellow-300 font-medium mt-auto">
               View Details →
             </Link>
           </div>
@@ -82,7 +82,7 @@ export default function Home() {
           <div className="border rounded-lg p-6 shadow hover:shadow-lg transition w-full md:w-1/4 flex flex-col gap-10">
             <h2 className="font-semibold text-lg">Web3 Revolution</h2>
             <p className="text-gray-600 text-sm">Dive into blockchain and decentralized apps. Rewards await!</p>
-            <Link href="/hackathons/web3-revolution" className="text-yellow-500 font-medium mt-auto">
+            <Link href="/hackathons/web3-revolution" className="text-black hover:underline hover:underline-offset-4 hover:decoration-yellow-300 font-medium mt-auto">
               View Details →
             </Link>
           </div>
@@ -90,7 +90,7 @@ export default function Home() {
           <div className="border rounded-lg p-6 shadow hover:shadow-lg transition w-full md:w-1/4 flex flex-col gap-10">
             <h2 className="font-semibold text-lg">Healthcare Hack 2.0</h2>
             <p className="text-gray-600 text-sm">Solve real-world healthcare problems and make an impact.</p>
-            <Link href="/hackathons/healthcare-hack" className="text-yellow-500 font-medium mt-auto">
+            <Link href="/hackathons/healthcare-hack" className="text-black hover:underline hover:underline-offset-4 hover:decoration-yellow-300 font-medium mt-auto">
               View Details →
             </Link>
           </div>
@@ -98,7 +98,7 @@ export default function Home() {
           <div className="border rounded-lg p-6 shadow hover:shadow-lg transition w-full md:w-1/4 flex flex-col gap-10">
             <h2 className="font-semibold text-lg">EduTech Sprint</h2>
             <p className="text-gray-600 text-sm">Build tools that change how students learn and grow.</p>
-            <Link href="/hackathons/edutech-sprint" className="text-yellow-500 font-medium mt-auto">
+            <Link href="/hackathons/edutech-sprint" className="text-black hover:underline hover:underline-offset-4 hover:decoration-yellow-300 font-medium mt-auto">
               View Details →
             </Link>
           </div>

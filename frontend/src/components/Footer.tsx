@@ -12,7 +12,7 @@ export const Footer = () => {
     <footer className="bg-black text-white ">
       <div className="mx-auto max-w-7xl py-12">
         <div className="flex flex-col items-center justify-between gap-8 lg:flex-row">
-          
+
           <div className="flex items-center space-x-2">
             <Image
               src={"/logo-white.svg"}
@@ -39,24 +39,24 @@ export const Footer = () => {
 
           <div className="flex items-center space-x-4">
             <a href="#" className="hover:text-gray-400 transition">
-              <IconBrandGithub size={20} />
+              <IconBrandGithub size={20} aria-label="github"/>
             </a>
             <a href="#" className="hover:text-gray-400 transition">
-              <IconBrandTwitter size={20} />
+              <IconBrandTwitter size={20} aria-label="twitter"/>
             </a>
             <a href="#" className="hover:text-gray-400 transition">
-              <IconBrandDiscord size={20} />
+              <IconBrandDiscord size={20} aria-label="discord"/>
             </a>
             <a href="#" className="hover:text-gray-400 transition">
-              <IconBrandInstagram size={20} />
+              <IconBrandInstagram size={20} aria-label="instagram"/>
             </a>
             <a href="#" className="hover:text-gray-400 transition">
-              <IconBrandLinkedin size={20} />
+              <IconBrandLinkedin size={20} aria-label="linkedin"/>
             </a>
           </div>
         </div>
 
-        <div className="mt-8 border-t border-gray-800 pt-8 text-center text-sm text-gray-500">
+        <div className="mt-8 border-t border-gray-800 pt-8 text-center text-sm text-gray-300">
           © {new Date().getFullYear()} Hackaholics. All rights reserved.
         </div>
       </div>
