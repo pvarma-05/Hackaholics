@@ -1,16 +1,15 @@
-from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-class User(AbstractUser):
+# Create your models here.
+class User(models.Model):
     ROLE_CHOICES = (
         ('student', 'Student'),
         ('expert', 'Expert'),
     )
+    email = models.EmailField(unique=True)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    google_id = models.CharField(max_length=100, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-    def save(self, *args, **kwargs):
-        if self.pk:
-            orig = User.objects.get(pk=self.pk)
-            if orig.role != self.role:
-                raise ValueError("Role cannot be changed once set.")
-        super().save(*args, **kwargs)
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []

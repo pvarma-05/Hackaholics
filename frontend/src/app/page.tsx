@@ -6,6 +6,32 @@ import { motion } from "framer-motion";
 import { AnimatedTestimonialsDemo } from "@/components/Testimonials";
 import { Footer } from "@/components/Footer";
 
+const hackathons = [
+  {
+    title: "AI Innovators Hackathon",
+    description: "Compete with the best minds in AI and win exciting prizes!",
+    link: "/hackathons/ai-innovators",
+    image: "/AI-Hackathon.jpg",
+  },
+  {
+    title: "Web3 Revolution",
+    description: "Dive into blockchain and decentralized apps. Rewards await!",
+    link: "/hackathons/web3-revolution",
+    image: "/web3-hackathon.jpg",
+  },
+  {
+    title: "Healthcare Hack 2.0",
+    description: "Solve real-world healthcare problems and make an impact.",
+    link: "/hackathons/healthcare-hack",
+    image: "/healthcare-hackathon.jpg",
+  },
+  {
+    title: "EduTech Sprint",
+    description: "Build tools that change how students learn and grow.",
+    link: "/hackathons/edutech-sprint",
+    image: "/hackathon-edutech.jpg",
+  },
+];
 
 export default function Home() {
   return (
@@ -17,7 +43,6 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="flex flex-col md:flex-row items-center justify-between px-4 sm:px-10 md:px-20 mt-5 mb-15">
-
         <div className="lg:w-[50%] flex flex-col gap-7">
           <h1 className="font-poppins text-4xl md:text-5xl font-bold leading-tight">
             Unleash Innovation with{" "}
@@ -64,48 +89,49 @@ export default function Home() {
       </section>
 
       {/* Featured Hackathons */}
-      <section className="flex flex-col mt-16  gap-15 md:gap-20 px-4 sm:px-10 md:px-20 mb-15">
-        <div className="text-2xl md:text-4xl font-poppins font-semibold">
-          <h1>Hackathons For You</h1>
+      <section className="mt-16 px-4 sm:px-10 md:px-20 mb-15 flex flex-col gap-10">
+        <div className="text-2xl md:text-4xl font-poppins font-semibold mb-10">
+          <h1>Featured Hackathons</h1>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6 font-outfit">
-
-          <div className="border rounded-lg p-6 shadow hover:shadow-lg transition w-full md:w-1/4 flex flex-col gap-10">
-            <h2 className="font-semibold text-lg">AI Innovators Hackathon</h2>
-            <p className="text-gray-600 text-sm">Compete with the best minds in AI and win exciting prizes!</p>
-            <Link href="/hackathons/ai-innovators" className="text-black hover:underline hover:underline-offset-4 hover:decoration-yellow-300 font-medium mt-auto">
-              View Details →
-            </Link>
-          </div>
-
-          <div className="border rounded-lg p-6 shadow hover:shadow-lg transition w-full md:w-1/4 flex flex-col gap-10">
-            <h2 className="font-semibold text-lg">Web3 Revolution</h2>
-            <p className="text-gray-600 text-sm">Dive into blockchain and decentralized apps. Rewards await!</p>
-            <Link href="/hackathons/web3-revolution" className="text-black hover:underline hover:underline-offset-4 hover:decoration-yellow-300 font-medium mt-auto">
-              View Details →
-            </Link>
-          </div>
-
-          <div className="border rounded-lg p-6 shadow hover:shadow-lg transition w-full md:w-1/4 flex flex-col gap-10">
-            <h2 className="font-semibold text-lg">Healthcare Hack 2.0</h2>
-            <p className="text-gray-600 text-sm">Solve real-world healthcare problems and make an impact.</p>
-            <Link href="/hackathons/healthcare-hack" className="text-black hover:underline hover:underline-offset-4 hover:decoration-yellow-300 font-medium mt-auto">
-              View Details →
-            </Link>
-          </div>
-
-          <div className="border rounded-lg p-6 shadow hover:shadow-lg transition w-full md:w-1/4 flex flex-col gap-10">
-            <h2 className="font-semibold text-lg">EduTech Sprint</h2>
-            <p className="text-gray-600 text-sm">Build tools that change how students learn and grow.</p>
-            <Link href="/hackathons/edutech-sprint" className="text-black hover:underline hover:underline-offset-4 hover:decoration-yellow-300 font-medium mt-auto">
-              View Details →
-            </Link>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {hackathons.map((hackathon, idx) => (
+            <div
+              key={idx}
+              className="group rounded-2xl border bg-white shadow-md transition hover:shadow-2xl overflow-hidden"
+            >
+              <div className="relative h-40 w-full overflow-hidden">
+                <Image
+                  src={hackathon.image}
+                  alt={hackathon.title}
+                  fill
+                  sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                  className="group-hover:scale-105 transition-transform duration-300 object-cover"
+                />
+              </div>
+              <div className="p-5 flex flex-col gap-3 h-[200px]">
+                <h3 className="font-semibold text-lg text-gray-900">
+                  {hackathon.title}
+                </h3>
+                <p className="text-gray-600 text-sm flex-1">
+                  {hackathon.description}
+                </p>
+                <Link
+                  href={hackathon.link}
+                  className="text-black hover:underline hover:underline-offset-4 hover:decoration-yellow-300 font-medium"
+                >
+                  View Details →
+                </Link>
+              </div>
+            </div>
+          ))}
         </div>
 
-        <div className="mt-4 text-center">
-          <Link href="/hackathons" className="text-white font-medium hover:bg-yellow-300/80 hover:text-black font-outfit p-5 bg-black rounded-lg duration-200">
+        <div className="mt-12 text-center">
+          <Link
+            href="/hackathons"
+            className="text-white font-medium hover:bg-yellow-300/80 hover:text-black font-outfit p-5 bg-black rounded-lg duration-200"
+          >
             Browse All Hackathons →
           </Link>
         </div>
@@ -123,7 +149,6 @@ export default function Home() {
       <section className="">
         <Footer />
       </section>
-
     </main>
   );
 }

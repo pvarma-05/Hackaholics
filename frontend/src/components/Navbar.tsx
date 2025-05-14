@@ -18,7 +18,7 @@ export default function Navbar() {
               alt="Hackaholics Logo Small"
               height={200}
               width={200}
-              className="object-contain h-auto w-auto block md:hidden"
+              className="object-contain h-auto w-auto block md:hidden select-none"
               draggable={false}
               priority
             />
@@ -29,7 +29,7 @@ export default function Navbar() {
               alt="Hackaholics Logo Large"
               height={200}
               width={200}
-              className="object-contain h-auto w-auto hidden md:block"
+              className="object-contain h-auto w-auto hidden md:block select-none"
               draggable={false}
               priority
             />
