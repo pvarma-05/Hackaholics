@@ -110,9 +110,9 @@ export default function Home() {
                 />
               </div>
               <div className="p-5 flex flex-col gap-3 h-[200px]">
-                <h3 className="font-semibold text-lg text-gray-900">
+                <h1 className="font-semibold text-lg text-gray-900">
                   {hackathon.title}
-                </h3>
+                </h1>
                 <p className="text-gray-600 text-sm flex-1">
                   {hackathon.description}
                 </p>

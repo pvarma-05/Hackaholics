@@ -50,7 +50,7 @@ export default function Navbar() {
         {/* Mobile Toggle */}
         <div className="md:hidden flex">
           <button onClick={() => setMenuOpen(!menuOpen)} className="focus:outline-none">
-            {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" aria-label="menu" />}
           </button>
         </div>
       </div>
