@@ -1,13 +1,7 @@
 import type { Metadata } from "next";
-import { Inter, Outfit, Poppins,Nanum_Myeongjo } from "next/font/google";
+import { Outfit, Poppins } from "next/font/google";
 import "./globals.css";
-import Navbar from "../components/Navbar";
 
-const inter = Nanum_Myeongjo({
-  weight: ["400","700", "800"],
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
 
 const outfit = Outfit({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -35,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${outfit.variable} ${poppins.variable} antialiased`}
+        className={`${outfit.variable} ${poppins.variable} antialiased selection:bg-yellow-300/50 selection:text-black`}
       >
 
         {children}

@@ -98,7 +98,7 @@ export default function Home() {
           {hackathons.map((hackathon, idx) => (
             <div
               key={idx}
-              className="group rounded-2xl border bg-white shadow-md transition hover:shadow-2xl overflow-hidden"
+              className="group rounded-2xl border overflow-hidden"
             >
               <div className="relative h-40 w-full overflow-hidden">
                 <Image
@@ -106,19 +106,20 @@ export default function Home() {
                   alt={hackathon.title}
                   fill
                   sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                  className="group-hover:scale-105 transition-transform duration-300 object-cover"
+                  className="group-hover:scale-105 transition-transform duration-300 object-cover select-none"
+                  draggable={false}
                 />
               </div>
               <div className="p-5 flex flex-col gap-3 h-[200px]">
-                <h1 className="font-semibold text-lg text-gray-900">
+                <h1 className="font-semibold text-lg text-gray-900 font-outfit">
                   {hackathon.title}
                 </h1>
-                <p className="text-gray-600 text-sm flex-1">
+                <p className="text-gray-600 text-sm flex-1 font-outfit">
                   {hackathon.description}
                 </p>
                 <Link
                   href={hackathon.link}
-                  className="text-black hover:underline hover:underline-offset-4 hover:decoration-yellow-300 font-medium"
+                  className="text-black hover:underline hover:underline-offset-4 hover:decoration-yellow-300 font-medium w-28 font-outfit hover:decoration-2"
                 >
                   View Details →
                 </Link>
@@ -146,7 +147,7 @@ export default function Home() {
       </section>
 
       {/* Footer Section */}
-      <section className="">
+      <section>
         <Footer />
       </section>
     </main>

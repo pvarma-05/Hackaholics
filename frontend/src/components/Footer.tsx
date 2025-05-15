@@ -9,7 +9,7 @@ import Image from "next/image";
 
 export const Footer = () => {
   return (
-    <footer className="bg-black text-white ">
+    <footer className="bg-black text-white font-outfit">
       <div className="mx-auto max-w-7xl py-12">
         <div className="flex flex-col items-center justify-between gap-8 lg:flex-row">
 
