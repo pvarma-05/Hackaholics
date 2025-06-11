@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit, Poppins } from "next/font/google";
 import "./globals.css";
+import { ClerkProvider } from "@clerk/nextjs";
 
 
 const outfit = Outfit({
@@ -27,14 +28,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${outfit.variable} ${poppins.variable} antialiased selection:bg-yellow-300/50 selection:text-black`}
-      >
+    <ClerkProvider>
+      <html lang="en">
+        <body
+          className={`${outfit.variable} ${poppins.variable} antialiased selection:bg-yellow-300/50 selection:text-black`}
+        >
 
-        {children}
+          {children}
 
-      </body>
-    </html>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
