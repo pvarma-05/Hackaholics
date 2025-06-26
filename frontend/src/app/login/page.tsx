@@ -1,9 +1,11 @@
-"use client";
+"use client"
+import React from 'react'
+import SignInForm from '@/components/forms/SignInForm'
 
-export default function Page(){
-  return(
+export default function SignIn() {
+  return (
     <div>
-      Hello Login
+      <SignInForm></SignInForm>
     </div>
   )
 }

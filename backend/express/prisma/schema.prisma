@@ -4,12 +4,176 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+// 1. Generator & Data Source
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
+
+enum Role {
+  STUDENT
+  EXPERT
+}
+
+enum Specialty {
+  FULL_STACK
+  FRONTEND
+  BACKEND
+  MOBILE
+  DATA_SCIENCE
+  DESIGNER
+  PRODUCT_MANAGER
+  BUSINESS
+  OTHER
+}
+
+enum Interest {
+  AR_VR
+  BEGINNER_FRIENDLY
+  BLOCKCHAIN
+  COMMUNICATION
+  CYBERSECURITY
+  DATABASES
+  DESIGN
+  DEVOPS
+  ECOMMERCE
+  EDUCATION
+  ENTERPRISE
+  FINTECH
+  GAMING
+  HEALTH
+  IOT
+  LIFEHACKS
+  NO_CODE
+  MACHINE_LEARNING
+  MOBILE
+  MUSIC_ART
+  OPEN_ENDED
+  PRODUCTIVITY
+  QUANTUM
+  RPA
+  SERVERLESS
+  SOCIAL_GOOD
+  VOICE_SKILLS
+  WEB
+}
+
+enum Occupation {
+  STUDENT
+  PROFESSIONAL
+}
+
+enum StudentLevel {
+  COLLEGE
+  HIGH_SCHOOL
+  MIDDLE_SCHOOL
+}
+
+enum GraduationMonth {
+  JAN
+  FEB
+  MAR
+  APR
+  MAY
+  JUN
+  JUL
+  AUG
+  SEP
+  OCT
+  NOV
+  DEC
+}
+
+enum JoinRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id              String   @id @default(cuid())
+  clerkId         String   @unique
+  username        String   @unique
+  name            String
+  email           String   @unique
+  profileImageUrl String
+  role            Role     @default(STUDENT)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  studentProfile  StudentProfile?
+  expertProfile   ExpertProfile?
+  companiesCreated Company[] @relation("UserCreatedCompanies")
+  githubUrl       String?  @db.VarChar(255)
+  linkedinUrl     String?  @db.VarChar(255)
+  twitterUrl      String?  @db.VarChar(255)
+}
+
+model StudentProfile {
+  id              String         @id @default(cuid())
+  userId          String         @unique
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialty       Specialty
+  skills          String[]
+  bio             String?        // Added to match frontend form and ExpertProfile
+  interests       Interest[]
+  location        String
+  timezone        String
+  occupation      Occupation
+  studentLevel    StudentLevel
+  schoolName      String
+  graduationMonth GraduationMonth
+  graduationYear  Int
+  birthMonth      Int
+  birthYear       Int
+}
+
+model Company {
+  id             String  @id @default(cuid())
+  name           String  @unique
+  websiteUrl     String?
+  description    String?
+  emailDomain    String? @default("")
+  phoneNumber    String
+  isInternalOnly Boolean @default(false)
+  approved       Boolean @default(true)
+  createdById    String
+  createdBy      User    @relation("UserCreatedCompanies", fields: [createdById], references: [id], onDelete: Cascade)
+  experts        ExpertProfile[]
+  joinRequests   CompanyJoinRequest[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model ExpertProfile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialty         Specialty // Added to match frontend schema
+  bio               String?
+  skills            String[]
+  interests         Interest[] // Added to match frontend schema
+  companyId         String?
+  company           Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  isApprovedInCompany Boolean  @default(false)
+  joinRequests      CompanyJoinRequest[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model CompanyJoinRequest {
+  id              String        @id @default(cuid())
+  expertProfileId String
+  expertProfile   ExpertProfile @relation(fields: [expertProfileId], references: [id], onDelete: Cascade)
+  companyId       String
+  company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  status          JoinRequestStatus @default(PENDING)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+

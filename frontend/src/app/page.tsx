@@ -67,7 +67,7 @@ export default function Home() {
                 🚀 Participate in Hackathons
               </button>
             </Link>
-            <Link href="/host">
+            <Link href="/">
               <button className="bg-black hover:bg-gray-800 text-white font-semibold p-4 rounded-lg w-full cursor-pointer">
                 🎯 Host Your Hackathon
               </button>
