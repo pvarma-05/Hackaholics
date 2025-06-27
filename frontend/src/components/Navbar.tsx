@@ -2,17 +2,20 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { useUser, SignOutButton } from '@clerk/nextjs';
 
 export default function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const { isSignedIn, isLoaded } = useUser();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { user, isSignedIn, isLoaded } = useUser();
+  const username = user?.username;
 
   return (
-    <nav className="w-full font-outfit">
+    <nav className="w-full font-outfit relative z-50">
       <div className="flex justify-between items-center py-2">
+        {/* Logo */}
         <Link href="/" className="flex items-center w-auto h-auto">
           <div className="relative">
             <Image
@@ -37,13 +40,52 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop */}
-        <div className="hidden md:flex items-center gap-5">
+        <div className="hidden md:flex items-center gap-5 relative">
           {isLoaded && isSignedIn ? (
-            <SignOutButton>
-              <button className="bg-red-500/70 hover:bg-red-500/60 py-2 px-3 rounded-md font-medium text-white">
-                Logout
+            <div ref={dropdownRef} className="relative">
+              <button
+                onClick={() => setDropdownOpen((prev) => !prev)}
+                className="flex items-center gap-2 focus:outline-none"
+              >
+                <Image
+                  src={user?.imageUrl!}
+                  alt="profile-pic"
+                  height={47}
+                  width={47}
+                  className="rounded-full border border-gray-300"
+                />
+                <ChevronDown
+                  className={`w-4 h-4 transform transition-transform duration-200 ${
+                    dropdownOpen ? 'rotate-180' : ''
+                  }`}
+                />
               </button>
-            </SignOutButton>
+
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 bg-white border rounded-md shadow-md py-2 w-40">
+                  <Link
+                    href={`/profile/${username}`}
+                    className="block px-4 py-2 hover:bg-gray-100"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    View Profile
+                  </Link>
+                  <Link
+                    href="/settings"
+                    className="block px-4 py-2 hover:bg-gray-100"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Settings
+                  </Link>
+                  <div className="border-t my-1" />
+                  <SignOutButton>
+                    <button className="w-full text-left px-4 py-2 text-red-500 hover:bg-red-50">
+                      Logout
+                    </button>
+                  </SignOutButton>
+                </div>
+              )}
+            </div>
           ) : (
             <>
               <Link
@@ -62,43 +104,90 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile Toggle */}
-        <div className="md:hidden flex">
-          <button onClick={() => setMenuOpen(!menuOpen)} className="focus:outline-none">
-            {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" aria-label="menu" />}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Menu */}
-      {menuOpen && (
-        <div className="md:hidden flex flex-col gap-4 p-4">
+        {/* Mobile */}
+        <div className="md:hidden flex items-center">
           {isLoaded && isSignedIn ? (
-            <SignOutButton>
-              <button className="bg-red-500/70 hover:bg-red-500/60 py-2 px-3 rounded-md font-medium text-white">
-                Logout
+            <div ref={dropdownRef} className="relative">
+              <button
+                onClick={() => setDropdownOpen((prev) => !prev)}
+                className="focus:outline-none"
+              >
+                <Image
+                  src={user?.imageUrl!}
+                  alt="profile-pic"
+                  height={40}
+                  width={40}
+                  className="rounded-full border border-gray-300"
+                />
               </button>
-            </SignOutButton>
+
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-4 bg-white border rounded-md shadow-md py-2 w-40">
+                  <Link
+                    href={`/profile/${username}`}
+                    className="block px-4 py-2 hover:bg-gray-100"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    View Profile
+                  </Link>
+                  <Link
+                    href="/settings"
+                    className="block px-4 py-2 hover:bg-gray-100"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Settings
+                  </Link>
+                  <div className="border-t my-1" />
+                  <SignOutButton>
+                    <button className="w-full text-left px-4 py-2 text-red-500 hover:bg-red-50">
+                      Logout
+                    </button>
+                  </SignOutButton>
+                </div>
+              )}
+            </div>
           ) : (
             <>
-              <Link
-                className="bg-gray-300 hover:bg-gray-300/50 py-2 px-3 rounded-md"
-                href="/signup"
-                onClick={() => setMenuOpen(false)}
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="focus:outline-none"
               >
-                Register
-              </Link>
-              <Link
-                className="hover:bg-yellow-300/60 py-2 px-3 bg-yellow-300/70 rounded-md"
-                href="/login"
-                onClick={() => setMenuOpen(false)}
-              >
-                Login
-              </Link>
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d={dropdownOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}
+                  />
+                </svg>
+              </button>
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-40 bg-white border rounded-md shadow-md py-2 w-40">
+                  <Link
+                    href="/signup"
+                    className="block px-4 py-2 hover:bg-gray-100"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Register
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="block px-4 py-2 hover:bg-gray-100"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Login
+                  </Link>
+                </div>
+              )}
             </>
           )}
         </div>
-      )}
+      </div>
     </nav>
   );
 }

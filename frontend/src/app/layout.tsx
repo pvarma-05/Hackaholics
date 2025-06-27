@@ -33,7 +33,6 @@ export default function RootLayout({
         <body
           className={`${outfit.variable} ${poppins.variable} antialiased selection:bg-yellow-300/50 selection:text-black`}
         >
-
           {children}
 
         </body>

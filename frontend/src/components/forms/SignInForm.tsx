@@ -65,7 +65,7 @@ export default function SignInForm() {
     if (!isLoaded || !signIn) return;
     setVerficationError(null);
     try {
-      await signIn.attemptFirstFactor({ strategy: 'email_code',code: verificationCode.trim(), });
+      await signIn.attemptFirstFactor({ strategy: 'email_code', code: verificationCode.trim(), });
       setResend('New code sent to your email.');
     } catch (error: any) {
       console.error('Resend Error:', error);
@@ -151,8 +151,8 @@ export default function SignInForm() {
               type="submit"
               disabled={isSubmitting || verificationCode.length !== 6}
               className={`w-full flex items-center justify-center p-3 rounded-lg font-outfit font-semibold text-black ${isSubmitting || verificationCode.length !== 6
-                  ? 'bg-yellow-300/30 cursor-not-allowed'
-                  : 'bg-yellow-300/70 hover:bg-yellow-300/60'
+                ? 'bg-yellow-300/30 cursor-not-allowed'
+                : 'bg-yellow-300/70 hover:bg-yellow-300/60'
                 }`}
             >
               {isSubmitting ? (
@@ -181,66 +181,69 @@ export default function SignInForm() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="min-h-screen flex items-center justify-center bg-gray-100 p-4"
-    >
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-poppins font-semibold text-gray-900 mb-6">
-          Log In to Hackaholics
-        </h1>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-outfit text-gray-600 mb-1">
-              Email Address
-            </label>
-            <Controller
-              name="email"
-              control={control}
-              render={({ field }) => (
-                <input
-                  id="email"
-                  type="email"
-                  {...field}
-                  placeholder="you@example.com"
-                  className="w-full p-3 border border-gray-300 rounded-lg font-outfit text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-300/70"
-                />
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="min-h-screen flex items-center justify-center bg-gray-100 p-4"
+      >
+        <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+          <h1 className="text-2xl font-poppins font-semibold text-gray-900 mb-6">
+            Log In to Hackaholics
+          </h1>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-outfit text-gray-600 mb-1">
+                Email Address
+              </label>
+              <Controller
+                name="email"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    id="email"
+                    type="email"
+                    {...field}
+                    placeholder="you@example.com"
+                    className="w-full p-3 border border-gray-300 rounded-lg font-outfit text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-300/70"
+                  />
+                )}
+              />
+              {errors.email && (
+                <p className="text-red-500 text-sm font-outfit mt-1">{errors.email.message}</p>
               )}
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm font-outfit mt-1">{errors.email.message}</p>
-            )}
-            {authErrors && (
-              <p className="text-red-500 text-sm font-outfit mt-1">{authErrors}</p>
-            )}
-          </div>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className={`w-full flex items-center justify-center p-3 rounded-lg font-outfit font-semibold text-black ${isSubmitting
+              {authErrors && (
+                <p className="text-red-500 text-sm font-outfit mt-1">{authErrors}</p>
+              )}
+            </div>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`w-full flex items-center justify-center p-3 rounded-lg font-outfit font-semibold text-black ${isSubmitting
                 ? 'bg-yellow-300/30 cursor-not-allowed'
                 : 'bg-yellow-300/70 hover:bg-yellow-300/60'
-              }`}
-          >
-            {isSubmitting ? (
-              <>
-                <IconLoader2 className="animate-spin h-5 w-5 mr-2" />
-                Sending Code...
-              </>
-            ) : (
-              'Send OTP to Email'
-            )}
-          </button>
-        </form>
-        <p className="font-outfit text-gray-600 text-sm text-center mt-4">
-          Don’t have an account?{' '}
-          <Link href="/signup" className="text-yellow-300/70 hover:underline font-medium">
-            Sign Up
-          </Link>
-        </p>
-      </div>
-    </motion.div>
+                }`}
+            >
+              {isSubmitting ? (
+                <>
+                  <IconLoader2 className="animate-spin h-5 w-5 mr-2" />
+                  Sending Code...
+                </>
+              ) : (
+                'Send OTP to Email'
+              )}
+            </button>
+          </form>
+          <p className="font-outfit text-gray-600 text-sm text-center mt-4">
+            Don’t have an account?{' '}
+            <Link href="/signup" className="text-yellow-300/70 hover:underline font-medium">
+              Sign Up
+            </Link>
+          </p>
+        </div>
+      </motion.div>
+      <div id="clerk-captcha" className="hidden" />
+    </>
   );
 }

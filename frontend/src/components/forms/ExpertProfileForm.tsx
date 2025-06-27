@@ -55,17 +55,16 @@ export default function ExpertProfileForm() {
       interests: [],
       isCreatingCompany: false,
       existingCompanyId: undefined,
-      newCompany: {
-        name: '',
-        websiteUrl: undefined,
-        description: undefined,
-        phoneNumber: '',
-        emailDomain: undefined,
-      },
+      newCompany: undefined, // Changed to undefined
     },
   });
 
   const isCreatingCompany = watch('isCreatingCompany');
+
+  // Log form errors for debugging
+  useEffect(() => {
+    console.log('Current form errors:', errors);
+  }, [errors]);
 
   useEffect(() => {
     if (user) {
@@ -79,12 +78,12 @@ export default function ExpertProfileForm() {
     const fetchCompanies = async () => {
       try {
         const response = await axios.get('http://localhost:4000/api/companies');
-        setCompanies(
-          response.data.map((company: { id: string; name: string }) => ({
-            value: company.id,
-            label: company.name,
-          }))
-        );
+        const fetchedCompanies = response.data.map((company: { id: string; name: string }) => ({
+          value: company.id,
+          label: company.name,
+        }));
+        setCompanies(fetchedCompanies);
+        console.log('Fetched companies:', fetchedCompanies);
       } catch (error: any) {
         console.error('Fetch companies error:', error);
         setSubmissionError(error.response?.data?.error || 'Failed to load companies. Please try again.');
@@ -95,6 +94,20 @@ export default function ExpertProfileForm() {
 
   useEffect(() => {
     setValue('isCreatingCompany', companyMode === 'create');
+    // Clear fields when switching modes
+    if (companyMode === 'create') {
+      setValue('existingCompanyId', undefined);
+      setValue('newCompany', {
+        name: '',
+        websiteUrl: undefined,
+        description: undefined,
+        phoneNumber: '',
+        emailDomain: undefined,
+      });
+    } else {
+      setValue('newCompany', undefined); // Set to undefined
+      setValue('existingCompanyId', undefined); // Reset to force selection
+    }
     trigger(['existingCompanyId', 'newCompany']);
   }, [companyMode, setValue, trigger]);
 
@@ -135,7 +148,7 @@ export default function ExpertProfileForm() {
     setIsUsernameAvailable(null);
 
     clearTimeout(debounceTimer);
-    if (value.trim().length < 3) return; // Don't even trigger check if it's too short
+    if (value.trim().length < 3) return;
 
     debounceTimer = setTimeout(() => checkUsernameAvailability(value), 500);
   };
@@ -159,24 +172,24 @@ export default function ExpertProfileForm() {
   };
 
   const onSubmit = async (data: FormData) => {
-    console.log('Form errors:', errors); // Debug log to inspect validation errors
+    console.log('Form submitted with data:', data);
     if (!user) {
       setSubmissionError('User not authenticated. Please log in.');
       return;
     }
-    console.log('Form submitted with data:', data);
     setSubmitting(true);
     setSubmissionError(null);
-    setUsernameError(null); // Clear previous username errors
+    setUsernameError(null);
 
     try {
-      // Validate username availability before submission
+      // Validate username availability
       const isUsernameAvailable = await checkUsernameAvailability(data.username);
       if (!isUsernameAvailable) {
-        return; // Stop submission if username is taken
+        return;
       }
 
-      const profileResponse = await axios.post('http://localhost:4000/api/profile/expert', {
+      // Log payload for debugging
+      const profilePayload = {
         clerkId: user.id,
         role: 'EXPERT',
         name: data.name,
@@ -189,7 +202,10 @@ export default function ExpertProfileForm() {
         interests: data.interests,
         companyId: data.isCreatingCompany ? null : data.existingCompanyId || null,
         isApprovedInCompany: data.isCreatingCompany ? true : false,
-      });
+      };
+      console.log('Submitting profile with payload:', profilePayload);
+
+      const profileResponse = await axios.post('http://localhost:4000/api/profile/expert', profilePayload);
       console.log('Profile response:', profileResponse.data);
 
       const userId = profileResponse.data.id;
@@ -197,22 +213,26 @@ export default function ExpertProfileForm() {
       let companyId = data.existingCompanyId;
       if (data.isCreatingCompany && data.newCompany) {
         try {
-          const companyResponse = await axios.post('http://localhost:4000/api/companies', {
+          const companyPayload = {
             name: data.newCompany.name,
             websiteUrl: data.newCompany.websiteUrl || null,
             description: data.newCompany.description || null,
             phoneNumber: data.newCompany.phoneNumber,
             emailDomain: data.newCompany.emailDomain || '',
             createdById: userId,
-          });
+          };
+          console.log('Creating company with payload:', companyPayload);
+          const companyResponse = await axios.post('http://localhost:4000/api/companies', companyPayload);
           console.log('Company response:', companyResponse.data);
           companyId = companyResponse.data.id;
 
-          const patchResponse = await axios.patch('http://localhost:4000/api/profile/expert', {
+          const patchPayload = {
             clerkId: user.id,
             companyId,
             isApprovedInCompany: true,
-          });
+          };
+          console.log('Patching profile with payload:', patchPayload);
+          const patchResponse = await axios.patch('http://localhost:4000/api/profile/expert', patchPayload);
           console.log('Patch response:', patchResponse.data);
         } catch (companyError: any) {
           console.error('Company creation error:', companyError);
@@ -220,14 +240,10 @@ export default function ExpertProfileForm() {
         }
       }
 
-      router.push('/dashboard');
+      router.push('/');
     } catch (error: any) {
       console.error('Profile submission error:', error);
-      if (error.response?.data?.error === 'Username is already taken') {
-        setUsernameError('Username is already taken');
-      } else {
-        setSubmissionError(error.response?.data?.error || 'Failed to save profile. Please try again.');
-      }
+      setSubmissionError(error.response?.data?.error || 'Failed to save profile. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -259,6 +275,11 @@ export default function ExpertProfileForm() {
         {submissionError && (
           <p className="text-red-500 text-sm font-outfit mb-4">{submissionError}</p>
         )}
+        {errors.newCompany && !isCreatingCompany && (
+          <p className="text-red-500 text-sm font-outfit mb-4">
+            New company fields should not be required when joining an existing company.
+          </p>
+        )}
 
         {/* Name */}
         <div>
@@ -278,7 +299,7 @@ export default function ExpertProfileForm() {
             <p className="text-red-500 text-sm font-outfit mt-1">{errors.name.message}</p>
           )}
         </div>
-v
+
         {/* Username */}
         <div>
           <label className="block text-sm font-outfit text-gray-600 mb-1">Username</label>
@@ -472,6 +493,7 @@ v
                     options={companies}
                     value={companies.find((c) => c.value === field.value) || null}
                     onChange={(selected) => {
+                      console.log('Selected existingCompanyId:', selected?.value);
                       field.onChange(selected?.value || null);
                       trigger('existingCompanyId');
                     }}
@@ -617,7 +639,7 @@ v
         >
           {submitting ? (
             <>
-              <IconLoader2 className="animate-spin h-5 w-5 mr-2" />
+              <IconLoader2 className="animate-spin h-5 w-5 mr-2 inline" />
               Submitting...
             </>
           ) : (
