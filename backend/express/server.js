@@ -12,6 +12,7 @@ import profileRoutes from './routes/profile.js';
 import hackathonRoutes from './routes/hackathon.js';
 import imagekitRoutes from './routes/imagekit.js';
 
+
 dotenv.config();
 
 const upload = multer({
@@ -47,7 +48,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api', userRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/hackathons', hackathonRoutes);
