@@ -55,13 +55,12 @@ export default function ExpertProfileForm() {
       interests: [],
       isCreatingCompany: false,
       existingCompanyId: undefined,
-      newCompany: undefined, // Changed to undefined
+      newCompany: undefined,
     },
   });
 
   const isCreatingCompany = watch('isCreatingCompany');
 
-  // Log form errors for debugging
   useEffect(() => {
     console.log('Current form errors:', errors);
   }, [errors]);
@@ -77,7 +76,7 @@ export default function ExpertProfileForm() {
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/companies');
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companies`);
         const fetchedCompanies = response.data.map((company: { id: string; name: string }) => ({
           value: company.id,
           label: company.name,
@@ -94,7 +93,7 @@ export default function ExpertProfileForm() {
 
   useEffect(() => {
     setValue('isCreatingCompany', companyMode === 'create');
-    // Clear fields when switching modes
+
     if (companyMode === 'create') {
       setValue('existingCompanyId', undefined);
       setValue('newCompany', {
@@ -105,8 +104,8 @@ export default function ExpertProfileForm() {
         emailDomain: undefined,
       });
     } else {
-      setValue('newCompany', undefined); // Set to undefined
-      setValue('existingCompanyId', undefined); // Reset to force selection
+      setValue('newCompany', undefined);
+      setValue('existingCompanyId', undefined);
     }
     trigger(['existingCompanyId', 'newCompany']);
   }, [companyMode, setValue, trigger]);
@@ -118,7 +117,7 @@ export default function ExpertProfileForm() {
       return false;
     }
     try {
-      const response = await axios.post('http://localhost:4000/api/check-username', { username });
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/check-username`, { username });
       if (response.data.error) {
         setUsernameError(response.data.error);
         setIsUsernameAvailable(false);
@@ -182,13 +181,13 @@ export default function ExpertProfileForm() {
     setUsernameError(null);
 
     try {
-      // Validate username availability
+
       const isUsernameAvailable = await checkUsernameAvailability(data.username);
       if (!isUsernameAvailable) {
         return;
       }
 
-      // Log payload for debugging
+
       const profilePayload = {
         clerkId: user.id,
         role: 'EXPERT',
@@ -205,7 +204,7 @@ export default function ExpertProfileForm() {
       };
       console.log('Submitting profile with payload:', profilePayload);
 
-      const profileResponse = await axios.post('http://localhost:4000/api/profile/expert', profilePayload);
+      const profileResponse = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/profile/expert`, profilePayload);
       console.log('Profile response:', profileResponse.data);
 
       const userId = profileResponse.data.id;
@@ -222,7 +221,7 @@ export default function ExpertProfileForm() {
             createdById: userId,
           };
           console.log('Creating company with payload:', companyPayload);
-          const companyResponse = await axios.post('http://localhost:4000/api/companies', companyPayload);
+          const companyResponse = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companies`, companyPayload);
           console.log('Company response:', companyResponse.data);
           companyId = companyResponse.data.id;
 
@@ -232,7 +231,7 @@ export default function ExpertProfileForm() {
             isApprovedInCompany: true,
           };
           console.log('Patching profile with payload:', patchPayload);
-          const patchResponse = await axios.patch('http://localhost:4000/api/profile/expert', patchPayload);
+          const patchResponse = await axios.patch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/profile/expert`, patchPayload);
           console.log('Patch response:', patchResponse.data);
         } catch (companyError: any) {
           console.error('Company creation error:', companyError);

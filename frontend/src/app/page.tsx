@@ -62,7 +62,7 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col gap-4 font-outfit lg:flex-row">
-            <Link href="/register">
+            <Link href="/hackathons">
               <button className="hover:bg-yellow-300/60 bg-yellow-300/70 text-black font-semibold p-4 rounded-lg w-full cursor-pointer">
                 🚀 Participate in Hackathons
               </button>

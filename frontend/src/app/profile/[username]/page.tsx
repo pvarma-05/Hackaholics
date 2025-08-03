@@ -39,7 +39,7 @@ export default function ProfilePage() {
     const fetchProfile = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`http://localhost:4000/api/profile/${username}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/profile/${username}`);
         setProfile(response.data);
       } catch (err: any) {
         setError(err.response?.data?.error || 'Failed to load profile');

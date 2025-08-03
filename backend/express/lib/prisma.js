@@ -5,7 +5,6 @@ let prisma;
 if (process.env.NODE_ENV === 'production') {
   prisma = new PrismaClient();
 } else {
-  // Prevent multiple instances in development (due to hot reloads)
   if (!global.prisma) {
     global.prisma = new PrismaClient();
   }

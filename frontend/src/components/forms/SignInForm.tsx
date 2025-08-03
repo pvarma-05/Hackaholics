@@ -90,7 +90,7 @@ export default function SignInForm() {
         await setActive({ session: result.createdSessionId });
         setVerificationCode('');
         setVerifying(false);
-        router.push('/'); // or homepage if already signed in
+        router.push('/');
       } else {
         setVerficationError(`Verification failed: ${result.status || 'Unknown status'}`);
       }

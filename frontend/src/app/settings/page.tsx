@@ -84,7 +84,7 @@ export default function SettingsPage() {
     const fetchProfile = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`http://localhost:4000/api/profile/${user.username}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/profile/${user.username}`);
         const profileData = response.data;
         setProfile(profileData);
         setPreviewImage(profileData.profileImageUrl || user.imageUrl || '/default-avatar.png');
@@ -131,7 +131,7 @@ export default function SettingsPage() {
 
     const fetchCompanies = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/companies');
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companies`);
         setCompanies(response.data);
       } catch (err) {
         toast.error('Failed to load companies');
@@ -167,7 +167,7 @@ export default function SettingsPage() {
 
     setIsSubmitting({ ...isSubmitting, profileInfo: true });
     try {
-      const response = await axios.patch('http://localhost:4000/api/profile', {
+      const response = await axios.patch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/profile`, {
         clerkId: user!.id,
         name,
         githubUrl: githubUrl || '',
@@ -215,7 +215,7 @@ export default function SettingsPage() {
       formData.append('clerkId', user!.id);
       formData.append('image', profileImage);
 
-      const response = await axios.patch('http://localhost:4000/api/profile/image', formData, {
+      const response = await axios.patch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/profile/image`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
@@ -257,7 +257,7 @@ export default function SettingsPage() {
 
     setIsSubmitting({ ...isSubmitting, studentPrefs: true });
     try {
-      const response = await axios.patch('http://localhost:4000/api/profile/student', {
+      const response = await axios.patch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/profile/student`, {
         clerkId: user!.id,
         specialty,
         skills,
@@ -294,7 +294,7 @@ export default function SettingsPage() {
 
     setIsSubmitting({ ...isSubmitting, expertPrefs: true });
     try {
-      const response = await axios.patch('http://localhost:4000/api/profile/expert', {
+      const response = await axios.patch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/profile/expert`, {
         clerkId: user!.id,
         specialty,
         skills,
@@ -322,7 +322,7 @@ export default function SettingsPage() {
 
     if (username !== profile?.username) {
       try {
-        const response = await axios.post('http://localhost:4000/api/check-username', { username });
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/check-username`, { username });
         if (!response.data.available) {
           setErrors({ ...errors, account: { ...errors.account, username: 'Username already taken' } });
           return;
@@ -335,7 +335,7 @@ export default function SettingsPage() {
 
     setIsSubmitting({ ...isSubmitting, account: true });
     try {
-      const response = await axios.patch('http://localhost:4000/api/profile/account', {
+      const response = await axios.patch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/profile/account`, {
         clerkId: user!.id,
         username,
         email,

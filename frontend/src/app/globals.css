@@ -51,3 +51,183 @@ body {
 .font-poppins{
   font-family: var(--font-poppins);
 }
+
+/* src/app/globals.css */
+
+/* --- React Day Picker (RDP) Styles - Consolidated and Enhanced Spacing --- */
+.rdp {
+  --rdp-cell-size: 38px;
+  --rdp-background-color: #fef08a; /* yellow-200 */
+  --rdp-background-hover-color: #fcd34d; /* yellow-300 */
+  --rdp-range-background-color: #fef08a; /* yellow-200 */
+  --rdp-range-background-hover-color: #fcd34d; /* yellow-300 */
+  --rdp-selected-color: #000; /* Black text for selected */
+  --rdp-selected-background-color: #facc15; /* yellow-400 */
+  --rdp-selected-background-hover-color: #eab308; /* yellow-500 */
+  --rdp-outline: 2px solid #facc15; /* yellow-400 */
+  --rdp-outline-offset: 2px;
+  --rdp-button-color: #1f2937; /* gray-800 */
+  --rdp-caption-color: #1f2937; /* gray-800 */
+  --rdp-border-color: #d1d5db; /* gray-300 */
+}
+
+.rdp {
+  display: inline-block;
+  font-size: 1rem;
+  color: #374151; /* gray-700 */
+  background-color: #fff; /* white */
+  border-radius: 0.5rem; /* rounded-lg */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-lg */
+  padding: 1rem; /* Added overall padding to the picker container */
+}
+
+.rdp-months {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem; /* Increased gap between months if multiple are shown */
+}
+
+.rdp-month {
+  margin: 0; /* Ensure no default margin */
+  padding: 0.5rem; /* Padding inside each month block */
+}
+
+.rdp-caption {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  text-align: center;
+  padding: 0.5rem 0;
+  margin-bottom: 1rem; /* Increased space below caption */
+}
+
+.rdp-caption_label {
+  font-weight: 600;
+  font-family: var(--font-poppins);
+  font-size: 1.125rem;
+}
+
+.rdp-nav {
+  white-space: nowrap;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.rdp-nav_button {
+  background: none;
+  border: 1px solid var(--rdp-border-color);
+  border-radius: 0.375rem;
+  color: var(--rdp-button-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  cursor: pointer;
+  margin: 0.5rem;
+  transition: background-color 0.2s ease-in-out;
+}
+.rdp-nav_button:hover {
+  background-color: var(--rdp-background-hover-color);
+}
+.rdp-nav_button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rdp-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+
+.rdp-head_row {
+  display: flex;
+  margin-bottom: 0.5rem; /* Space below weekday headers */
+}
+
+.rdp-head_cell {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  font-family: var(--font-outfit);
+}
+
+.rdp-row {
+  display: flex;
+  margin-bottom: 0.5rem; /* Increased space between rows of days */
+}
+
+.rdp-cell {
+  flex: 1;
+  text-align: center;
+  padding: 0.25rem;
+}
+
+.rdp-button {
+  width: var(--rdp-cell-size);
+  height: var(--rdp-cell-size);
+  border-radius: 9999px;
+  background-color: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 400;
+  font-family: var(--font-outfit);
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+.rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
+  background-color: var(--rdp-background-hover-color);
+  color: var(--rdp-button-color);
+}
+.rdp-button:focus-visible {
+  outline: var(--rdp-outline);
+  outline-offset: var(--rdp-outline-offset);
+}
+
+.rdp-day_today {
+  font-weight: 600;
+}
+
+.rdp-day_selected {
+  background-color: var(--rdp-selected-background-color);
+  color: var(--rdp-selected-color);
+}
+.rdp-day_selected:hover {
+  background-color: var(--rdp-selected-background-hover-color);
+}
+
+.rdp-day_outside {
+  color: #9ca3af;
+}
+.rdp-day_disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.rdp-day_range_start,
+.rdp-day_range_end {
+  background-color: var(--rdp-selected-background-color);
+  color: var(--rdp-selected-color);
+}
+
+.rdp-day_range_middle {
+  background-color: var(--rdp-range-background-color);
+}
+.rdp-day_range_middle:hover {
+  background-color: var(--rdp-range-background-hover-color);
+}
+
+/* Adjust popover position if needed */
+.popover-content {
+  z-index: 1000;
+}

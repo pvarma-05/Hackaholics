@@ -77,7 +77,7 @@ export default function StudentProfileForm() {
       return false;
     }
     try {
-      const response = await axios.post('http://localhost:4000/api/check-username', { username });
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/check-username`, { username });
       if (response.data.error) {
         setUsernameError(response.data.error);
         setIsUsernameAvailable(false);
@@ -107,7 +107,7 @@ export default function StudentProfileForm() {
     setIsUsernameAvailable(null);
 
     clearTimeout(debounceTimer);
-    if (value.trim().length < 3) return; // Don't even trigger check if it's too short
+    if (value.trim().length < 3) return;
 
     debounceTimer = setTimeout(() => checkUsernameAvailability(value), 500);
   };
@@ -131,7 +131,7 @@ export default function StudentProfileForm() {
   };
 
   const onSubmit = async (data: FormData) => {
-    console.log('Form errors:', errors); // Debug log to inspect validation errors
+    console.log('Form errors:', errors);
     if (!user) {
       setSubmissionError('User not authenticated. Please log in.');
       return;
@@ -139,17 +139,15 @@ export default function StudentProfileForm() {
     console.log('Form submitted with data:', data);
     setSubmitting(true);
     setSubmissionError(null);
-    setUsernameError(null); // Clear previous username errors
+    setUsernameError(null);
 
     try {
-      // Validate username availability before submission
       const isUsernameAvailable = await checkUsernameAvailability(data.username);
       if (!isUsernameAvailable) {
-        return; // Stop submission if username is taken
+        return;
       }
 
-      // Submit profile data and username to backend
-      const response = await axios.post('http://localhost:4000/api/profile/student', {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/profile/student`, {
         ...data,
         clerkId: user.id,
         role: 'STUDENT',

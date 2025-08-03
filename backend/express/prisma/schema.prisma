@@ -96,31 +96,49 @@ enum JoinRequestStatus {
   REJECTED
 }
 
+// New Enums for Hackathon Features
+enum HackathonStatus {
+  UPCOMING
+  REGISTRATION_OPEN
+  REGISTRATION_CLOSED
+  JUDGING // After submission deadline, before results
+  COMPLETED // Results announced
+  ARCHIVED // Old hackathons
+}
+
+enum ReviewType {
+  MANUAL
+  AI
+}
+
 model User {
-  id              String   @id @default(cuid())
-  clerkId         String   @unique
-  username        String   @unique
-  name            String
-  email           String   @unique
-  profileImageUrl String
-  role            Role     @default(STUDENT)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  studentProfile  StudentProfile?
-  expertProfile   ExpertProfile?
-  companiesCreated Company[] @relation("UserCreatedCompanies")
-  githubUrl       String?  @db.VarChar(255)
-  linkedinUrl     String?  @db.VarChar(255)
-  twitterUrl      String?  @db.VarChar(255)
+  id                     String                  @id @default(cuid())
+  clerkId                String                  @unique
+  username               String                  @unique
+  name                   String
+  email                  String                  @unique
+  profileImageUrl        String
+  role                   Role                    @default(STUDENT)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  studentProfile         StudentProfile?
+  expertProfile          ExpertProfile?
+  companiesCreated       Company[]               @relation("UserCreatedCompanies")
+  githubUrl              String?                 @db.VarChar(255)
+  linkedinUrl            String?                 @db.VarChar(255)
+  twitterUrl             String?                 @db.VarChar(255)
+  // New relations for Hackathons
+  hackathonsCreated      Hackathon[]
+  hackathonRegistrations HackathonRegistration[]
 }
 
 model StudentProfile {
-  id              String         @id @default(cuid())
-  userId          String         @unique
-  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String          @id @default(cuid())
+  userId          String          @unique
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   specialty       Specialty
   skills          String[]
-  bio             String?        // Added to match frontend form and ExpertProfile
+  bio             String?
   interests       Interest[]
   location        String
   timezone        String
@@ -134,46 +152,110 @@ model StudentProfile {
 }
 
 model Company {
-  id             String  @id @default(cuid())
-  name           String  @unique
+  id             String               @id @default(cuid())
+  name           String               @unique
   websiteUrl     String?
   description    String?
-  emailDomain    String? @default("")
+  emailDomain    String?              @default("")
   phoneNumber    String
-  isInternalOnly Boolean @default(false)
-  approved       Boolean @default(true)
+  isInternalOnly Boolean              @default(false)
+  approved       Boolean              @default(true) // For MVP, keeping true. Admin will verify.
   createdById    String
-  createdBy      User    @relation("UserCreatedCompanies", fields: [createdById], references: [id], onDelete: Cascade)
+  createdBy      User                 @relation("UserCreatedCompanies", fields: [createdById], references: [id], onDelete: Cascade)
   experts        ExpertProfile[]
   joinRequests   CompanyJoinRequest[]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  // New relation for Hackathons
+  hackathons     Hackathon[]          // Hackathons hosted by this company (optional)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
 }
 
 model ExpertProfile {
-  id                String   @id @default(cuid())
-  userId            String   @unique
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  specialty         Specialty // Added to match frontend schema
-  bio               String?
-  skills            String[]
-  interests         Interest[] // Added to match frontend schema
-  companyId         String?
-  company           Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
-  isApprovedInCompany Boolean  @default(false)
-  joinRequests      CompanyJoinRequest[]
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id                  String               @id @default(cuid())
+  userId              String               @unique
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialty           Specialty
+  bio                 String?
+  skills              String[]
+  interests           Interest[]
+  companyId           String?
+  company             Company?             @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  isApprovedInCompany Boolean              @default(false)
+  joinRequests        CompanyJoinRequest[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
 }
 
 model CompanyJoinRequest {
-  id              String        @id @default(cuid())
+  id              String            @id @default(cuid())
   expertProfileId String
-  expertProfile   ExpertProfile @relation(fields: [expertProfileId], references: [id], onDelete: Cascade)
+  expertProfile   ExpertProfile     @relation(fields: [expertProfileId], references: [id], onDelete: Cascade)
   companyId       String
-  company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company         Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
   status          JoinRequestStatus @default(PENDING)
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 }
 
+// ===========================================
+// NEW MODELS FOR HACKATHONS
+// ===========================================
+
+model Hackathon {
+  id                  String            @id @default(cuid())
+  title               String            @unique
+  slug                String            @unique // For nice, SEO-friendly URLs
+  description         String
+  rules               String?
+  bannerImageUrl      String?           // URL from Imagekit
+  startDate           DateTime
+  endDate             DateTime
+  registrationEndDate DateTime          // Deadline for registration
+  submissionEndDate   DateTime          // Deadline for project submission
+  status              HackathonStatus   @default(UPCOMING)
+  reviewType          ReviewType        @default(MANUAL) // AI or MANUAL review
+
+  createdByUserId     String
+  createdBy           User              @relation(fields: [createdByUserId], references: [id]) // Link to the User who created it
+  companyId           String?           // Optional: Link to the company hosting it
+  company             Company?          @relation(fields: [companyId], references: [id]) // Relation to Company model
+
+  registrations       HackathonRegistration[] // Registrations for this hackathon
+  submissions         ProjectSubmission[]     // All project submissions under this hackathon
+
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  // prizes Json? // Future: store prize details here
+  // judges ExpertProfile[] // Future: link judges to hackathon
+}
+
+model HackathonRegistration {
+  id          String    @id @default(cuid())
+  hackathonId String
+  hackathon   Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  registeredAt DateTime @default(now())
+
+  submission  ProjectSubmission? // One-to-one link for the project submitted by this registration
+
+  @@unique([hackathonId, userId]) // A user can only register once per hackathon
+}
+
+model ProjectSubmission {
+  id                 String              @id @default(cuid())
+  registrationId     String              @unique // Unique link to a HackathonRegistration
+  registration       HackathonRegistration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  hackathonId        String              // Redundant but useful for direct queries
+  hackathon          Hackathon           @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  submissionUrl      String?             // e.g., GitHub repo, live demo link
+  submissionText     String?             // Direct text content (for MVP AI)
+  // submittedFileUrl String?             // Future: for actual file uploads (zips, PDFs)
+  score              Int?                // AI generated score (0-100)
+  manualReviewScore  Int?                // Manual review score (0-100)
+  feedback           String?             // AI feedback or manual expert feedback
+  status             String              @default("PENDING_REVIEW") // PENDING_REVIEW, REVIEWED_AI, REVIEWED_MANUAL, GRADING_COMPLETE
+
+  submittedAt        DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+}

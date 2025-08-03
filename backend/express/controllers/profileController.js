@@ -1,3 +1,4 @@
+
 import { clerkClient } from '@clerk/clerk-sdk-node';
 
 export const createStudentProfile = async (req, res) => {
@@ -6,8 +7,20 @@ export const createStudentProfile = async (req, res) => {
   const { clerkId, role, name, username, email, profileImageUrl, ...rest } = req.body;
 
   try {
+    
     await clerkClient.users.updateUser(clerkId, { username });
 
+    
+    
+    await clerkClient.users.updateUserMetadata(clerkId, {
+      publicMetadata: {
+        role: role,
+        username: username,
+        
+      },
+    });
+
+    
     const user = await prisma.user.create({
       data: {
         clerkId,
@@ -34,7 +47,7 @@ export const createExpertProfile = async (req, res) => {
   const { clerkId, role, companyId, isApprovedInCompany, name, username, email, profileImageUrl, specialty, skills, bio, interests } = req.body;
 
   try {
-    // Validate companyId if provided
+    
     if (companyId) {
       const company = await prisma.company.findUnique({ where: { id: companyId } });
       if (!company) {
@@ -42,8 +55,20 @@ export const createExpertProfile = async (req, res) => {
       }
     }
 
+    
     await clerkClient.users.updateUser(clerkId, { username });
 
+    
+    
+    await clerkClient.users.updateUserMetadata(clerkId, {
+      publicMetadata: {
+        role: role,
+        username: username,
+        
+      },
+    });
+
+    
     const user = await prisma.user.upsert({
       where: { clerkId },
       update: {
@@ -70,7 +95,7 @@ export const createExpertProfile = async (req, res) => {
           create: { specialty, skills, bio, interests, companyId: companyId || null, isApprovedInCompany },
         },
       },
-      include: { expertProfile: true }, // Ensure expertProfile is included in the response
+      include: { expertProfile: true },
     });
 
     if (!user.expertProfile) {
@@ -95,6 +120,7 @@ export const createExpertProfile = async (req, res) => {
     res.status(500).json({ error: error.message || 'Failed to create profile' });
   }
 };
+
 
 export const updateExpertCompany = async (req, res) => {
   const prisma = req.prisma;
@@ -123,8 +149,8 @@ export const updateExpertCompany = async (req, res) => {
 };
 
 export const getProfileByUsername = async (req, res) => {
-  const { username } = req.params;
   const prisma = req.prisma;
+  const { username } = req.params;
 
   try {
     const user = await prisma.user.findUnique({
@@ -248,11 +274,11 @@ export const updateProfile = async (req, res) => {
 export const updateProfileImage = async (req, res) => {
   const prisma = req.prisma;
   const clerkClient = req.clerkClient;
-  const clerkId = req.body.clerkId; // From FormData
-  const files = req.files; // Multer provides array of files
+  const clerkId = req.body.clerkId; 
+  const files = req.files; 
 
   try {
-    // Validate inputs
+    
     if (!clerkId) {
       return res.status(400).json({ error: 'Clerk ID is required' });
     }
@@ -265,18 +291,18 @@ export const updateProfileImage = async (req, res) => {
       return res.status(400).json({ error: 'Image file not found in request' });
     }
 
-    // Verify user exists
+    
     const user = await prisma.user.findUnique({ where: { clerkId } });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Update Clerk user with the new image
+    
     const updatedClerkUser = await clerkClient.users.updateUser(clerkId, {
-      profileImage: image.buffer, // Use buffer from multer
+      profileImage: image.buffer, 
     });
 
-    // Update profileImageUrl in the database
+    
     const updatedUser = await prisma.user.update({
       where: { clerkId },
       data: { profileImageUrl: updatedClerkUser.imageUrl },
@@ -380,21 +406,35 @@ export const updateAccount = async (req, res) => {
     const user = await prisma.user.findUnique({ where: { clerkId } });
     if (!user) return res.status(404).json({ error: 'User not found' });
 
+    
+    const clerkUpdateData = {}; 
+    const prismaUpdateData = {}; 
+
     if (username && username !== user.username) {
       const existingUser = await prisma.user.findUnique({ where: { username } });
       if (existingUser) return res.status(400).json({ error: 'Username already taken' });
-      await clerkClient.users.updateUser(clerkId, { username });
+      clerkUpdateData.username = username;
+      prismaUpdateData.username = username;
+      
+      clerkUpdateData.publicMetadata = { ...(clerkUpdateData.publicMetadata || {}), username: username };
     }
 
     if (email && email !== user.email) {
       const existingEmail = await prisma.user.findUnique({ where: { email } });
       if (existingEmail) return res.status(400).json({ error: 'Email already taken' });
-      await clerkClient.users.updateUserMetadata(clerkId, { publicMetadata: { email } });
+      prismaUpdateData.email = email;
+      
+      clerkUpdateData.publicMetadata = { ...(clerkUpdateData.publicMetadata || {}), email: email };
+    }
+
+    
+    if (Object.keys(clerkUpdateData).length > 0) {
+      await clerkClient.users.updateUser(clerkId, clerkUpdateData);
     }
 
     const updatedUser = await prisma.user.update({
       where: { clerkId },
-      data: { username, email },
+      data: prismaUpdateData,
     });
 
     res.json(updatedUser);

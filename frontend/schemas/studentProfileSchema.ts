@@ -15,7 +15,7 @@ export const studentProfileSchema = z
           message: 'Username can only contain letters, numbers, and underscores.',
         }),
     email: z.string().email(),
-    profileImageUrl: z.string().url().optional(), // Clerk will usually provide this
+    profileImageUrl: z.string().url().optional(),
     specialty: z.enum([
       'FULL_STACK', 'FRONTEND', 'BACKEND', 'MOBILE',
       'DATA_SCIENCE', 'DESIGNER', 'PRODUCT_MANAGER', 'BUSINESS', 'OTHER',
@@ -42,5 +42,5 @@ export const studentProfileSchema = z
     ]),
     graduationYear: z.number().min(2024).max(2100),
     birthMonth: z.number().min(1).max(12),
-    birthYear: z.number().min(1950).max(new Date().getFullYear() - 12), // assuming age 12+
+    birthYear: z.number().min(1950).max(new Date().getFullYear() - 12),
   });

@@ -12,12 +12,9 @@ router.post('/upload-image', upload.single('file'), async (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Upload to Clerk or a third-party service (e.g., Cloudinary)
-    // For this example, we'll use Clerk's setProfileImage as a placeholder
     const imageBuffer = file.buffer;
-    // Assuming we upload to Clerk for a URL (replace with actual storage service)
     const clerkResponse = await clerkClient.users.setProfileImage({
-      userId: req.body.clerkId, // Pass clerkId in the request
+      userId: req.body.clerkId,
       file: imageBuffer,
     });
 
