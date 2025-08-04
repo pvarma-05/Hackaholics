@@ -17,23 +17,34 @@ const isIncompleteProfileRoute = createRouteMatcher([
 
 const isExpertRoute = createRouteMatcher([
   '/hackathons/create(.*)',
+  '/hackathons/(.*)/analytics',
+  '/hackathons/(.*)/edit',
+  '/hackathons/(.*)/participants',
+  '/hackathons/(.*)/submissions',
+  '/hackathons/(.*)/submissions/(.*)/review',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
   const authResult = await auth();
   const { userId, sessionClaims, redirectToSignIn } = authResult;
 
-  const publicMetadataFromClaims: { role?: 'STUDENT' | 'EXPERT' | 'ADMIN'; username?: string } | undefined =
+  interface CustomPublicMetadata {
+    role?: 'STUDENT' | 'EXPERT' | 'ADMIN';
+    username?: string;
+  }
+  const publicMetadataFromClaims: CustomPublicMetadata | undefined =
     (sessionClaims as any)?.public_metadata;
 
-  console.log('\n--- Middleware Auth Check ---');
-  console.log('Path:', req.nextUrl.pathname);
-  console.log('userId:', userId);
-  console.log('sessionClaims (raw):', sessionClaims);
-  console.log('Public Metadata from Claims (accessed via public_metadata):', publicMetadataFromClaims);
-  console.log('Role from Public Metadata:', publicMetadataFromClaims?.role);
-  console.log('Is Expert Route Match:', isExpertRoute(req));
-  console.log('-------------------------------\n');
+
+  // console.log('\n--- Middleware Auth Check ---');
+  // console.log('Path:', req.nextUrl.pathname);
+  // console.log('userId:', userId);
+  // console.log('sessionClaims (raw):', sessionClaims);
+  // console.log('Public Metadata from Claims (accessed via public_metadata):', publicMetadataFromClaims);
+  // console.log('Role from Public Metadata:', publicMetadataFromClaims?.role);
+  // console.log('Is Expert Route Match:', isExpertRoute(req));
+  // console.log('-------------------------------\n');
+
 
   if (!userId && !isPublicRoute(req)) {
     console.log("Middleware: Redirecting to sign-in - Not logged in.");
@@ -41,7 +52,6 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   if (userId) {
-
     const hasRole = publicMetadataFromClaims?.role;
     const hasUsername = publicMetadataFromClaims?.username;
 

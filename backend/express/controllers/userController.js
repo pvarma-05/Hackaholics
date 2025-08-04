@@ -1,5 +1,3 @@
-// import prisma from '../lib/prisma.js';
-
 const getInternalUserIdByClerkId = async (prismaInstance, clerkId) => {
     if (!clerkId) return null;
     const user = await prismaInstance.user.findUnique({

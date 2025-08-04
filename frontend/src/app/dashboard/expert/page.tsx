@@ -177,14 +177,15 @@ export default function ExpertDashboardPage() {
                             View Details
                         </button>
                     </Link>
-                    <Link href={`/hackathons/${hackathon.slug}/submissions`} className="flex-1">
+
+                    <Link href={`/hackathons/${hackathon.id}/analytics`} className="flex-1">
                         <button className="bg-blue-300/70 hover:bg-blue-300/60 text-black font-semibold py-2 px-4 rounded-lg transition-colors duration-200 w-full">
-                            View Submissions
+                            View Analytics
                         </button>
                     </Link>
-                    <Link href={`/hackathons/${hackathon.slug}/edit`} className="flex-1">
+                    <Link href={`/hackathons/${hackathon.id}/edit`} className="flex-1">
                         <button className="bg-yellow-300/70 hover:bg-yellow-300/60 text-black font-semibold py-2 px-4 rounded-lg transition-colors duration-200 w-full">
-                            Edit
+                            Edit Hackathon
                         </button>
                     </Link>
                   </div>
