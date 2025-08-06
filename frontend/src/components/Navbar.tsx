@@ -13,18 +13,6 @@ export default function Navbar() {
   const username = user?.username;
   const isExpert = user?.publicMetadata?.role === 'EXPERT';
 
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setDropdownOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [dropdownRef]);
-
   return (
     <nav className="w-full font-outfit relative z-50">
       <div className="flex justify-between items-center py-2">
@@ -75,7 +63,7 @@ export default function Navbar() {
               </button>
 
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 bg-white border rounded-md shadow-md py-2 w-48">
+                <div className="absolute right-0 mt-2 bg-white border rounded-md shadow-md py-2 w-40">
                   <Link
                     href={`/profile/${username}`}
                     className="block px-4 py-2 hover:bg-gray-100"
@@ -83,14 +71,13 @@ export default function Navbar() {
                   >
                     View Profile
                   </Link>
-                  {/* ADD EXPERT DASHBOARD LINK */}
                   {isExpert && (
                       <Link
                         href="/dashboard/expert"
                         className="block px-4 py-2 hover:bg-gray-100"
                         onClick={() => setDropdownOpen(false)}
                       >
-                        Expert Dashboard
+                        Dashboard
                       </Link>
                   )}
                   <Link
@@ -145,7 +132,7 @@ export default function Navbar() {
               </button>
 
               {dropdownOpen && (
-                <div className="absolute right-0 mt-4 bg-white border rounded-md shadow-md py-2 w-48">
+                <div className="absolute right-0 mt-4 bg-white border rounded-md shadow-md py-2 w-40">
                   <Link
                     href={`/profile/${username}`}
                     className="block px-4 py-2 hover:bg-gray-100"
@@ -159,7 +146,7 @@ export default function Navbar() {
                         className="block px-4 py-2 hover:bg-gray-100"
                         onClick={() => setDropdownOpen(false)}
                       >
-                        Expert Dashboard
+                        Dashboard
                       </Link>
                   )}
                   <Link
