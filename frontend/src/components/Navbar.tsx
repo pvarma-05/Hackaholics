@@ -11,6 +11,19 @@ export default function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, isSignedIn, isLoaded } = useUser();
   const username = user?.username;
+  const isExpert = user?.publicMetadata?.role === 'EXPERT';
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownRef]);
 
   return (
     <nav className="w-full font-outfit relative z-50">
@@ -39,7 +52,7 @@ export default function Navbar() {
           </div>
         </Link>
 
-        {/* Desktop */}
+        {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-5 relative">
           {isLoaded && isSignedIn ? (
             <div ref={dropdownRef} className="relative">
@@ -62,7 +75,7 @@ export default function Navbar() {
               </button>
 
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 bg-white border rounded-md shadow-md py-2 w-40">
+                <div className="absolute right-0 mt-2 bg-white border rounded-md shadow-md py-2 w-48">
                   <Link
                     href={`/profile/${username}`}
                     className="block px-4 py-2 hover:bg-gray-100"
@@ -70,6 +83,16 @@ export default function Navbar() {
                   >
                     View Profile
                   </Link>
+                  {/* ADD EXPERT DASHBOARD LINK */}
+                  {isExpert && (
+                      <Link
+                        href="/dashboard/expert"
+                        className="block px-4 py-2 hover:bg-gray-100"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        Expert Dashboard
+                      </Link>
+                  )}
                   <Link
                     href="/settings"
                     className="block px-4 py-2 hover:bg-gray-100"
@@ -104,7 +127,7 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile */}
+        {/* Mobile Navigation */}
         <div className="md:hidden flex items-center">
           {isLoaded && isSignedIn ? (
             <div ref={dropdownRef} className="relative">
@@ -122,7 +145,7 @@ export default function Navbar() {
               </button>
 
               {dropdownOpen && (
-                <div className="absolute right-0 mt-4 bg-white border rounded-md shadow-md py-2 w-40">
+                <div className="absolute right-0 mt-4 bg-white border rounded-md shadow-md py-2 w-48">
                   <Link
                     href={`/profile/${username}`}
                     className="block px-4 py-2 hover:bg-gray-100"
@@ -130,6 +153,15 @@ export default function Navbar() {
                   >
                     View Profile
                   </Link>
+                  {isExpert && (
+                      <Link
+                        href="/dashboard/expert"
+                        className="block px-4 py-2 hover:bg-gray-100"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        Expert Dashboard
+                      </Link>
+                  )}
                   <Link
                     href="/settings"
                     className="block px-4 py-2 hover:bg-gray-100"
@@ -167,7 +199,7 @@ export default function Navbar() {
                 </svg>
               </button>
               {dropdownOpen && (
-                <div className="absolute right-0 mt-40 bg-white border rounded-md shadow-md py-2 w-40">
+                <div className="absolute right-0 mt-4 bg-white border rounded-md shadow-md py-2 w-48">
                   <Link
                     href="/signup"
                     className="block px-4 py-2 hover:bg-gray-100"

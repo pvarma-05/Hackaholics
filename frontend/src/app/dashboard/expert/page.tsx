@@ -1,12 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUser, useAuth } from '@clerk/nextjs';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { IconLoader2, IconCalendar, IconBuildingCommunity, IconUsers, IconFileText } from '@tabler/icons-react';
+import { Dialog, Transition } from '@headlessui/react';
+import toast, { Toaster } from 'react-hot-toast';
+import {
+  IconLoader2,
+  IconCalendar,
+  IconUsers,
+  IconFileText,
+  IconTrash,
+} from '@tabler/icons-react';
 import Navbar from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { format } from 'date-fns';
@@ -36,6 +44,10 @@ export default function ExpertDashboardPage() {
   const [hostedHackathons, setHostedHackathons] = useState<HostedHackathon[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedHackathon, setSelectedHackathon] = useState<{ id: string; title: string } | null>(null);
 
   useEffect(() => {
     if (isLoaded && (!user || user.publicMetadata?.role !== 'EXPERT')) {
@@ -43,34 +55,63 @@ export default function ExpertDashboardPage() {
     }
   }, [isLoaded, user, router]);
 
-  useEffect(() => {
-    const fetchHostedHackathons = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        if (!user || user.publicMetadata?.role !== 'EXPERT') {
-          setLoading(false);
-          return;
-        }
-
-        const token = await getToken();
-        const response = await axios.get<HostedHackathon[]>(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me/hackathons`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setHostedHackathons(response.data);
-      } catch (err: any) {
-        console.error('Failed to fetch hosted hackathons:', err);
-        setError(err.response?.data?.error || 'Failed to load your hackathons.');
-      } finally {
+  const fetchHostedHackathons = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      if (!user || user.publicMetadata?.role !== 'EXPERT') {
         setLoading(false);
+        return;
       }
-    };
 
+      const token = await getToken();
+      const response = await axios.get<HostedHackathon[]>(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me/hackathons`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setHostedHackathons(response.data);
+    } catch (err: any) {
+      console.error('Failed to fetch hosted hackathons:', err);
+      setError(err.response?.data?.error || 'Failed to load your hackathons.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     if (isLoaded && isSignedIn && user) {
       fetchHostedHackathons();
     }
   }, [isLoaded, isSignedIn, user, getToken]);
+
+  const confirmDeleteHackathon = (hackathonId: string, hackathonTitle: string) => {
+    setSelectedHackathon({ id: hackathonId, title: hackathonTitle });
+    setShowConfirmModal(true);
+  };
+
+  const handleDeleteConfirmed = async () => {
+    if (!selectedHackathon) return;
+
+    setDeletingId(selectedHackathon.id);
+    setError(null);
+
+    try {
+      const token = await getToken();
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/hackathons/${selectedHackathon.id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setHostedHackathons(hostedHackathons.filter(h => h.id !== selectedHackathon.id));
+      toast.success(`"${selectedHackathon.title}" deleted successfully.`);
+    } catch (err: any) {
+      console.error('Failed to delete hackathon:', err);
+      toast.error(err.response?.data?.error || 'Failed to delete hackathon.');
+    } finally {
+      setDeletingId(null);
+      setShowConfirmModal(false);
+      setSelectedHackathon(null);
+    }
+  };
 
   const getStatusColors = (displayStatus: string) => {
     switch (displayStatus.toLowerCase()) {
@@ -82,7 +123,6 @@ export default function ExpertDashboardPage() {
       default: return 'bg-yellow-100 text-yellow-800 border-yellow-300';
     }
   };
-
 
   if (loading || !isLoaded || (isLoaded && user && user.publicMetadata?.role !== 'EXPERT')) {
     return (
@@ -111,6 +151,67 @@ export default function ExpertDashboardPage() {
       transition={{ duration: 0.5 }}
       className="min-h-screen w-full font-outfit bg-gray-50"
     >
+      <Toaster position="top-right" />
+      <Transition appear show={showConfirmModal} as={Fragment}>
+        <Dialog as="div" className="relative z-50" onClose={() => setShowConfirmModal(false)}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+                    Confirm Deletion
+                  </Dialog.Title>
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-500">
+                      Are you sure you want to delete the hackathon{' '}
+                      <strong>{selectedHackathon?.title}</strong>? This action cannot be undone.
+                    </p>
+                  </div>
+
+                  <div className="mt-4 flex justify-end gap-3">
+                    <button
+                      type="button"
+                      className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+                      onClick={() => setShowConfirmModal(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                      onClick={handleDeleteConfirmed}
+                      disabled={deletingId === selectedHackathon?.id}
+                    >
+                      {deletingId === selectedHackathon?.id ? 'Deleting...' : 'Yes, Delete'}
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+
       {/* Navbar */}
       <section className="flex px-4 sm:px-10 md:px-20 mt-5 mb-4">
         <Navbar />
@@ -141,9 +242,23 @@ export default function ExpertDashboardPage() {
                 className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 flex flex-col"
               >
                 <div className="p-5 flex flex-col flex-1">
-                  <h2 className="text-xl font-poppins font-semibold text-gray-900 mb-2">
-                    {hackathon.title}
-                  </h2>
+                  <div className="flex justify-between items-center mb-2">
+                    <h2 className="text-xl font-poppins font-semibold text-gray-900">
+                      {hackathon.title}
+                    </h2>
+                    <button
+                      onClick={() => confirmDeleteHackathon(hackathon.id, hackathon.title)}
+                      disabled={deletingId === hackathon.id}
+                      className="text-red-500 hover:text-red-700 disabled:text-gray-400 disabled:cursor-not-allowed transition"
+                    >
+                      {deletingId === hackathon.id ? (
+                        <IconLoader2 className="animate-spin" size={20} />
+                      ) : (
+                        <IconTrash size={20} />
+                      )}
+                    </button>
+                  </div>
+
                   <p className="text-gray-600 text-sm font-outfit mb-3">
                     {hackathon.company && `Hosted by ${hackathon.company.name}`}
                   </p>
@@ -153,12 +268,15 @@ export default function ExpertDashboardPage() {
                       {format(new Date(hackathon.startDate), 'MMM dd, yyyy')} -{' '}
                       {format(new Date(hackathon.endDate), 'MMM dd, yyyy')}
                     </span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${getStatusColors(hackathon.displayStatus)}`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-semibold border ${getStatusColors(
+                        hackathon.displayStatus
+                      )}`}
+                    >
                       {hackathon.displayStatus}
                     </span>
                   </div>
 
-                  {/* Stats */}
                   <div className="flex justify-around items-center bg-gray-50 p-3 rounded-md mb-4">
                     <div className="flex items-center gap-1 text-gray-700 font-medium">
                       <IconUsers size={18} />
@@ -170,23 +288,21 @@ export default function ExpertDashboardPage() {
                     </div>
                   </div>
 
-                  {/* Action Buttons for Expert */}
                   <div className="flex flex-col sm:flex-row gap-3 mt-auto">
                     <Link href={`/hackathons/${hackathon.slug}`} className="flex-1">
-                        <button className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 w-full">
-                            View Details
-                        </button>
+                      <button className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 w-full">
+                        View Details
+                      </button>
                     </Link>
-
                     <Link href={`/hackathons/${hackathon.id}/analytics`} className="flex-1">
-                        <button className="bg-blue-300/70 hover:bg-blue-300/60 text-black font-semibold py-2 px-4 rounded-lg transition-colors duration-200 w-full">
-                            View Analytics
-                        </button>
+                      <button className="bg-blue-300/70 hover:bg-blue-300/60 text-black font-semibold py-2 px-4 rounded-lg transition-colors duration-200 w-full">
+                        View Analytics
+                      </button>
                     </Link>
                     <Link href={`/hackathons/${hackathon.id}/edit`} className="flex-1">
-                        <button className="bg-yellow-300/70 hover:bg-yellow-300/60 text-black font-semibold py-2 px-4 rounded-lg transition-colors duration-200 w-full">
-                            Edit Hackathon
-                        </button>
+                      <button className="bg-yellow-300/70 hover:bg-yellow-300/60 text-black font-semibold py-2 px-4 rounded-lg transition-colors duration-200 w-full">
+                        Edit Hackathon
+                      </button>
                     </Link>
                   </div>
                 </div>
