@@ -66,19 +66,17 @@ export const getAllHackathons = async (req, res) => {
   }
 };
 
-const isCuid = (str) => typeof str === 'string' && str.length === 25; 
+const isCuid = (str) => typeof str === 'string' && str.length === 25;
 
 export const getHackathonBySlug = async (req, res) => {
   const prisma = req.prisma;
-  const { slug } = req.params; 
+  const { slug } = req.params;
 
-  
   console.log(`\n--- ENTERING getHackathonBySlug function ---`);
   console.log(`  req.params object:`, req.params);
   console.log(`  Received param "slug": "${slug}" (Type: ${typeof slug}, Length: ${slug?.length})`);
   console.log(`  Is it a CUID? ${isCuid(slug)}`);
   console.log(`-------------------------------------------\n`);
-  
 
   const clerkUserId = req.auth?.userId;
   const internalUserId = await getInternalUserIdByClerkId(prisma, clerkUserId);
@@ -86,18 +84,16 @@ export const getHackathonBySlug = async (req, res) => {
   try {
     let hackathon;
     if (isCuid(slug)) {
-        
         hackathon = await prisma.hackathon.findUnique({
-            where: { id: slug }, 
+            where: { id: slug },
             include: {
                 createdBy: { select: { id: true, name: true, username: true, profileImageUrl: true, clerkId: true } },
                 company: { select: { id: true, name: true, websiteUrl: true } },
             },
         });
     } else {
-        
-        hackathon = await prisma.hackathon.findUnique({ 
-            where: { slug: slug }, 
+        hackathon = await prisma.hackathon.findUnique({
+            where: { slug: slug },
             include: {
                 createdBy: { select: { id: true, name: true, username: true, profileImageUrl: true, clerkId: true } },
                 company: { select: { id: true, name: true, websiteUrl: true } },
@@ -112,9 +108,10 @@ export const getHackathonBySlug = async (req, res) => {
 
     let isRegistered = false;
     let currentUserSubmission = null;
+    let foundRegistration = null;
 
     if (internalUserId) {
-      const foundRegistration = await prisma.hackathonRegistration.findUnique({
+      foundRegistration = await prisma.hackathonRegistration.findUnique({
         where: {
           hackathonId_userId: { hackathonId: hackathon.id, userId: internalUserId },
         },
@@ -469,20 +466,19 @@ const getInternalUserIdByClerkId = async (prismaInstance, clerkId) => {
 
 export const getHackathonAnalytics = async (req, res) => {
     const prisma = req.prisma;
-    const { hackathonId } = req.params; 
+    const { hackathonId } = req.params;
 
-    
+
     console.log(`\n--- ENTERING getHackathonAnalytics function ---`);
-    console.log(`  req.params object:`, req.params); 
+    console.log(`  req.params object:`, req.params);
     console.log(`  Received hackathonId from params: "${hackathonId}" (Type: ${typeof hackathonId}, Length: ${hackathonId?.length})`);
     console.log(`---------------------------------------------\n`);
-    
 
     const { id: currentUserIdRaw, role: currentUserRole } = req.user;
     const currentUserId = currentUserIdRaw.trim();
 
     try {
-        
+
         const hackathon = await prisma.hackathon.findUnique({
             where: { id: hackathonId },
             select: {
