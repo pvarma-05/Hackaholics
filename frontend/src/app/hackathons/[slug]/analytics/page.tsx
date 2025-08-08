@@ -279,8 +279,8 @@ export default function HackathonAnalyticsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${data.submissionStatus === 'PENDING REVIEW' ? 'bg-yellow-100 text-yellow-800' :
-                          data.submissionStatus === 'REVIEWED MANUAL' || data.submissionStatus === 'REVIEWED AI' ? 'bg-green-100 text-green-800' :
-                            'bg-gray-100 text-gray-800'
+                        data.submissionStatus === 'REVIEWED MANUAL' || data.submissionStatus === 'REVIEWED AI' ? 'bg-green-100 text-green-800' :
+                          'bg-gray-100 text-gray-800'
                         }`}>
                         {data.submissionStatus}
                       </span>
@@ -289,7 +289,7 @@ export default function HackathonAnalyticsPage() {
                       {data.submissionScore !== null && data.submissionScore !== undefined ? data.submissionScore : 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      {data.isSubmitted && submissionDeadlinePassed && (hackathon.reviewType === 'MANUAL' || data.submissionStatus === 'PENDING REVIEW') ? (
+                      {data.isSubmitted && submissionDeadlinePassed && hackathon.reviewType === 'MANUAL' && data.submissionStatus === 'PENDING REVIEW' ? (
                         <Link href={`/hackathons/${hackathon.slug}/submissions/${data.submissionId}/review`} className="text-indigo-600 hover:text-indigo-900 flex items-center justify-end gap-1">
                           Review <IconStar size={16} />
                         </Link>

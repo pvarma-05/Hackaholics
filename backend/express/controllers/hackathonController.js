@@ -119,7 +119,18 @@ export const getHackathonBySlug = async (req, res) => {
       });
       if (foundRegistration) {
         isRegistered = true;
-        currentUserSubmission = foundRegistration.submission;
+        currentUserSubmission = foundRegistration.submission
+          ? {
+              id: foundRegistration.submission.id,
+              submissionUrl: foundRegistration.submission.submissionUrl,
+              submissionText: foundRegistration.submission.submissionText,
+              score: foundRegistration.submission.score,
+              manualReviewScore: foundRegistration.submission.manualReviewScore,
+              feedback: foundRegistration.submission.feedback,
+              status: foundRegistration.submission.status,
+              submittedAt: foundRegistration.submission.submittedAt,
+            }
+          : null;
       }
     }
     const hasSubmitted = !!currentUserSubmission;
@@ -136,16 +147,28 @@ export const getHackathonBySlug = async (req, res) => {
     }
     console.log(`--------------------------------------------------------\n`);
 
-
     const now = new Date();
     let displayStatus = hackathon.status;
-    if (now < hackathon.registrationEndDate) { displayStatus = 'REGISTRATION_OPEN'; }
-    else if (now >= hackathon.registrationEndDate && now < hackathon.submissionEndDate) { displayStatus = 'REGISTRATION_CLOSED'; }
-    else if (now >= hackathon.submissionEndDate && now < hackathon.endDate) { displayStatus = 'JUDGING'; }
-    else if (now >= hackathon.endDate && hackathon.status !== 'COMPLETED' && hackathon.status !== 'ARCHIVED') { displayStatus = 'COMPLETED'; }
+    if (now < hackathon.registrationEndDate) {
+      displayStatus = 'REGISTRATION_OPEN';
+    } else if (now >= hackathon.registrationEndDate && now < hackathon.submissionEndDate) {
+      displayStatus = 'REGISTRATION_CLOSED';
+    } else if (now >= hackathon.submissionEndDate && now < hackathon.endDate) {
+      displayStatus = 'JUDGING';
+    } else if (now >= hackathon.endDate && hackathon.status !== 'COMPLETED' && hackathon.status !== 'ARCHIVED') {
+      displayStatus = 'COMPLETED';
+    }
+    // Override displayStatus for students with reviewed submissions
+    if (isRegistered && currentUserSubmission?.status.includes('REVIEWED')) {
+      displayStatus = 'Reviewed';
+    }
 
     const hackathonResponse = {
-      ...hackathon, isRegistered, hasSubmitted, currentUserSubmission, displayStatus: displayStatus.replaceAll('_', ' '),
+      ...hackathon,
+      isRegistered,
+      hasSubmitted,
+      currentUserSubmission,
+      displayStatus: displayStatus.replaceAll('_', ' '),
     };
     res.json(hackathonResponse);
   } catch (error) {
@@ -410,11 +433,11 @@ export const getHackathonSubmissions = async (req, res) => {
       submissionUrl: sub.submissionUrl,
       submissionText: sub.submissionText,
       score: sub.score,
-      manualReviewScore: sub.manualReviewScore, 
+      manualReviewScore: sub.manualReviewScore,
       feedback: sub.feedback,
       status: sub.status,
       submittedAt: sub.submittedAt,
-      hackathonId: sub.hackathonId, 
+      hackathonId: sub.hackathonId,
       hackathonSubmissionEndDate: hackathon.submissionEndDate
     }));
     res.json(formattedSubmissions);
@@ -427,158 +450,164 @@ export const getHackathonSubmissions = async (req, res) => {
 
 
 export const reviewSubmission = async (req, res) => {
-    const prisma = req.prisma;
-    const { id: submissionId } = req.params;
-    const { score, feedback } = req.body;
-    const { id: currentUserId, role: currentUserRole } = req.user;
+  const prisma = req.prisma;
+  const { id: submissionId } = req.params;
+  const { score, feedback } = req.body;
+  const { id: currentUserId, role: currentUserRole } = req.user;
 
-    console.log(`\n--- ENTERING reviewSubmission function ---`);
-    console.log(`  submissionId: "${submissionId}" (Type: ${typeof submissionId}, Length: ${submissionId?.length})`);
-    console.log(`  score: ${score} (Type: ${typeof score})`);
-    console.log(`  feedback: "${feedback}" (Type: ${typeof feedback})`);
-    console.log(`  currentUserId: "${currentUserId}", currentUserRole: "${currentUserRole}"`);
-    console.log(`---------------------------------------------\n`);
+  console.log(`\n--- ENTERING reviewSubmission function ---`);
+  console.log(`  submissionId: "${submissionId}" (Type: ${typeof submissionId}, Length: ${submissionId?.length})`);
+  console.log(`  score: ${score} (Type: ${typeof score})`);
+  console.log(`  feedback: "${feedback}" (Type: ${typeof feedback})`);
+  console.log(`  currentUserId: "${currentUserId}", currentUserRole: "${currentUserRole}"`);
+  console.log(`---------------------------------------------\n`);
 
-    if (score === undefined || score === null || isNaN(score) || score < 0 || score > 100) {
-        console.warn(`Invalid score received: ${score}`);
-        return res.status(400).json({ error: 'Score must be a number between 0 and 100.' });
-    }
-    if (feedback && typeof feedback !== 'string') {
-        console.warn(`Invalid feedback received: ${feedback}`);
-        return res.status(400).json({ error: 'Feedback must be a string.' });
-    }
+  if (score === undefined || score === null || isNaN(score) || score < 0 || score > 100) {
+    console.warn(`Invalid score received: ${score}`);
+    return res.status(400).json({ error: 'Score must be a number between 0 and 100.' });
+  }
+  if (feedback && typeof feedback !== 'string') {
+    console.warn(`Invalid feedback received: ${feedback}`);
+    return res.status(400).json({ error: 'Feedback must be a string.' });
+  }
 
-    try {
-        
-        const submission = await prisma.projectSubmission.findUnique({
-            where: { id: submissionId },
-            include: {
-                hackathon: {
-                    select: {
-                        id: true,
-                        createdByUserId: true,
-                        companyId: true,
-                        submissionEndDate: true,
-                        slug: true 
-                    }
-                },
-                registration: {
-                    include: {
-                        user: {
-                            select: { id: true, username: true, name: true, profileImageUrl: true }
-                        }
-                    }
-                }
+  try {
+
+    const submission = await prisma.projectSubmission.findUnique({
+      where: { id: submissionId },
+      include: {
+        hackathon: {
+          select: {
+            id: true,
+            createdByUserId: true,
+            companyId: true,
+            submissionEndDate: true,
+            slug: true
+          }
+        },
+        registration: {
+          include: {
+            user: {
+              select: { id: true, username: true, name: true, profileImageUrl: true }
             }
-        });
-
-        if (!submission) {
-            console.warn(`Submission with ID "${submissionId}" not found.`);
-            
-            const allSubmissions = await prisma.projectSubmission.findMany({
-                select: { id: true, hackathonId: true, registrationId: true, submittedAt: true }
-            });
-            console.log(`All submissions in database:`, allSubmissions);
-            
-            const hackathonSubmissions = await prisma.projectSubmission.findMany({
-                where: { hackathonId: 'cmdwyjinh00053kmc6xrigdjx' },
-                select: { id: true, hackathonId: true, registrationId: true, submittedAt: true }
-            });
-            console.log(`Submissions for hackathon cmdwyjinh00053kmc6xrigdjx:`, hackathonSubmissions);
-            return res.status(404).json({ error: 'Submission not found.' });
+          }
         }
-        if (!submission.hackathon) {
-            console.error(`Associated hackathon not found for submission ${submissionId}.`);
-            return res.status(500).json({ error: 'Associated hackathon not found for submission.' });
-        }
-        if (!submission.registration) {
-            console.error(`Associated registration not found for submission ${submissionId}.`);
-            return res.status(500).json({ error: 'Associated registration not found for submission.' });
-        }
+      }
+    });
 
-        console.log(`Found submission:`, {
-            id: submission.id,
-            hackathonId: submission.hackathon.id,
-            hackathonSlug: submission.hackathon.slug,
-            registrationId: submission.registration.id
-        });
+    if (!submission) {
+      console.warn(`Submission with ID "${submissionId}" not found.`);
 
-        let isAuthorizedToReview = false;
-        if (submission.hackathon.createdByUserId === currentUserId) {
-            isAuthorizedToReview = true;
-            console.log(`Authorized as creator (hackathon.createdByUserId: ${submission.hackathon.createdByUserId})`);
-        } else if (currentUserRole === 'ADMIN') {
-            isAuthorizedToReview = true;
-            console.log(`Authorized as ADMIN (currentUserRole: ${currentUserRole})`);
-        } else if (submission.hackathon.companyId && currentUserRole === 'EXPERT') {
-            const currentExpertProfile = await prisma.expertProfile.findUnique({
-                where: { userId: currentUserId },
-                select: { companyId: true, isApprovedInCompany: true }
-            });
-            console.log(`Expert check - currentExpertProfile:`, currentExpertProfile);
-            if (currentExpertProfile && currentExpertProfile.isApprovedInCompany && currentExpertProfile.companyId === submission.hackathon.companyId) {
-                isAuthorizedToReview = true;
-                console.log(`Authorized as company expert (companyId: ${currentExpertProfile.companyId} matches hackathon.companyId: ${submission.hackathon.companyId})`);
-            }
-        }
-        if (!isAuthorizedToReview) {
-            console.warn(`Unauthorized attempt to review submission ${submissionId} by user ${currentUserId} (Role: ${currentUserRole})`);
-            return res.status(403).json({ error: 'Unauthorized: You do not have permission to review this submission.' });
-        }
+      const allSubmissions = await prisma.projectSubmission.findMany({
+        select: { id: true, hackathonId: true, registrationId: true, submittedAt: true }
+      });
+      console.log(`All submissions in database:`, allSubmissions);
 
-        const now = new Date();
-        if (now < submission.hackathon.submissionEndDate) {
-            console.warn(`Submission deadline not passed for hackathon ${submission.hackathon.id}. Current time: ${now}, submissionEndDate: ${submission.hackathon.submissionEndDate}`);
-            return res.status(400).json({ error: 'Submissions can only be reviewed after the submission deadline has passed.' });
-        }
-
-        const updatedSubmission = await prisma.projectSubmission.update({
-            where: { id: submissionId },
-            data: {
-                manualReviewScore: score,
-                feedback: feedback || null,
-                status: 'REVIEWED_MANUAL'
-            },
-            include: {
-                registration: {
-                    include: {
-                        user: {
-                            select: { id: true, username: true, name: true, profileImageUrl: true }
-                        }
-                    }
-                },
-                hackathon: { select: { id: true, submissionEndDate: true } }
-            }
-        });
-
-        console.log(`Successfully reviewed submission ${submissionId}. Updated data:`, {
-            manualReviewScore: updatedSubmission.manualReviewScore,
-            feedback: updatedSubmission.feedback,
-            status: updatedSubmission.status
-        });
-
-        const formattedSubmission = {
-            id: updatedSubmission.id,
-            submitterId: updatedSubmission.registration.user.id,
-            submitterUsername: updatedSubmission.registration.user.username,
-            submitterName: updatedSubmission.registration.user.name,
-            submitterProfileImageUrl: updatedSubmission.registration.user.profileImageUrl,
-            submissionUrl: updatedSubmission.submissionUrl,
-            submissionText: updatedSubmission.submissionText,
-            score: updatedSubmission.score,
-            manualReviewScore: updatedSubmission.manualReviewScore,
-            feedback: updatedSubmission.feedback,
-            status: updatedSubmission.status,
-            submittedAt: updatedSubmission.submittedAt,
-            hackathonId: updatedSubmission.hackathon.id,
-            hackathonSubmissionEndDate: updatedSubmission.hackathon.submissionEndDate
-        };
-
-        res.json(formattedSubmission);
-    } catch (error) {
-        console.error('Error reviewing submission:', error);
-        res.status(500).json({ error: 'Failed to review submission.' });
+      const hackathonSubmissions = await prisma.projectSubmission.findMany({
+        where: { hackathonId: 'cmdwyjinh00053kmc6xrigdjx' },
+        select: { id: true, hackathonId: true, registrationId: true, submittedAt: true }
+      });
+      console.log(`Submissions for hackathon cmdwyjinh00053kmc6xrigdjx:`, hackathonSubmissions);
+      return res.status(404).json({ error: 'Submission not found.' });
     }
+
+    if (submission.status === 'REVIEWED_MANUAL') {
+      console.warn(`Submission ${submissionId} is already reviewed.`);
+      return res.status(400).json({ error: 'This submission has already been reviewed.' });
+    }
+
+    if (!submission.hackathon) {
+      console.error(`Associated hackathon not found for submission ${submissionId}.`);
+      return res.status(500).json({ error: 'Associated hackathon not found for submission.' });
+    }
+    if (!submission.registration) {
+      console.error(`Associated registration not found for submission ${submissionId}.`);
+      return res.status(500).json({ error: 'Associated registration not found for submission.' });
+    }
+
+    console.log(`Found submission:`, {
+      id: submission.id,
+      hackathonId: submission.hackathon.id,
+      hackathonSlug: submission.hackathon.slug,
+      registrationId: submission.registration.id
+    });
+
+    let isAuthorizedToReview = false;
+    if (submission.hackathon.createdByUserId === currentUserId) {
+      isAuthorizedToReview = true;
+      console.log(`Authorized as creator (hackathon.createdByUserId: ${submission.hackathon.createdByUserId})`);
+    } else if (currentUserRole === 'ADMIN') {
+      isAuthorizedToReview = true;
+      console.log(`Authorized as ADMIN (currentUserRole: ${currentUserRole})`);
+    } else if (submission.hackathon.companyId && currentUserRole === 'EXPERT') {
+      const currentExpertProfile = await prisma.expertProfile.findUnique({
+        where: { userId: currentUserId },
+        select: { companyId: true, isApprovedInCompany: true }
+      });
+      console.log(`Expert check - currentExpertProfile:`, currentExpertProfile);
+      if (currentExpertProfile && currentExpertProfile.isApprovedInCompany && currentExpertProfile.companyId === submission.hackathon.companyId) {
+        isAuthorizedToReview = true;
+        console.log(`Authorized as company expert (companyId: ${currentExpertProfile.companyId} matches hackathon.companyId: ${submission.hackathon.companyId})`);
+      }
+    }
+    if (!isAuthorizedToReview) {
+      console.warn(`Unauthorized attempt to review submission ${submissionId} by user ${currentUserId} (Role: ${currentUserRole})`);
+      return res.status(403).json({ error: 'Unauthorized: You do not have permission to review this submission.' });
+    }
+
+    const now = new Date();
+    if (now < submission.hackathon.submissionEndDate) {
+      console.warn(`Submission deadline not passed for hackathon ${submission.hackathon.id}. Current time: ${now}, submissionEndDate: ${submission.hackathon.submissionEndDate}`);
+      return res.status(400).json({ error: 'Submissions can only be reviewed after the submission deadline has passed.' });
+    }
+
+    const updatedSubmission = await prisma.projectSubmission.update({
+      where: { id: submissionId },
+      data: {
+        manualReviewScore: score,
+        feedback: feedback || null,
+        status: 'REVIEWED_MANUAL'
+      },
+      include: {
+        registration: {
+          include: {
+            user: {
+              select: { id: true, username: true, name: true, profileImageUrl: true }
+            }
+          }
+        },
+        hackathon: { select: { id: true, submissionEndDate: true } }
+      }
+    });
+
+    console.log(`Successfully reviewed submission ${submissionId}. Updated data:`, {
+      manualReviewScore: updatedSubmission.manualReviewScore,
+      feedback: updatedSubmission.feedback,
+      status: updatedSubmission.status
+    });
+
+    const formattedSubmission = {
+      id: updatedSubmission.id,
+      submitterId: updatedSubmission.registration.user.id,
+      submitterUsername: updatedSubmission.registration.user.username,
+      submitterName: updatedSubmission.registration.user.name,
+      submitterProfileImageUrl: updatedSubmission.registration.user.profileImageUrl,
+      submissionUrl: updatedSubmission.submissionUrl,
+      submissionText: updatedSubmission.submissionText,
+      score: updatedSubmission.score,
+      manualReviewScore: updatedSubmission.manualReviewScore,
+      feedback: updatedSubmission.feedback,
+      status: updatedSubmission.status,
+      submittedAt: updatedSubmission.submittedAt,
+      hackathonId: updatedSubmission.hackathon.id,
+      hackathonSubmissionEndDate: updatedSubmission.hackathon.submissionEndDate
+    };
+
+    res.json(formattedSubmission);
+  } catch (error) {
+    console.error('Error reviewing submission:', error);
+    res.status(500).json({ error: 'Failed to review submission.' });
+  }
 };
 
 const getInternalUserIdByClerkId = async (prismaInstance, clerkId) => {
@@ -595,7 +624,7 @@ const getInternalUserIdByClerkId = async (prismaInstance, clerkId) => {
 
 export const getHackathonAnalytics = async (req, res) => {
   const prisma = req.prisma;
-  const { hackathonId } = req.params; 
+  const { hackathonId } = req.params;
   const { id: currentUserIdRaw, role: currentUserRole } = req.user;
   const currentUserId = currentUserIdRaw.trim();
 

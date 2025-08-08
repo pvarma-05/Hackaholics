@@ -48,7 +48,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api/users', userRoutes);
+app.use('/api/', userRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/hackathons', hackathonRoutes);

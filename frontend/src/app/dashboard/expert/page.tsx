@@ -66,7 +66,7 @@ export default function ExpertDashboardPage() {
 
       const token = await getToken();
       const response = await axios.get<HostedHackathon[]>(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me/hackathons`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/me/hackathons`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setHostedHackathons(response.data);

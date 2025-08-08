@@ -86,23 +86,11 @@ export default function ReviewSubmissionPage() {
         const isCompanyExpert = isExpert && user?.publicMetadata?.companyId === hackathonResponse.data.companyId && hackathonResponse.data.companyId;
         const isAdmin = user?.publicMetadata?.role === 'ADMIN';
 
-        console.log('Frontend DEBUG (Submissions Page): Authorization Check');
-        console.log(`  user.id (Clerk ID): "${user?.id}"`);
-        console.log(`  hackathonResponse.data.createdBy.clerkId: "${hackathonResponse.data.createdBy.clerkId}"`);
-        console.log(`  isCreator: ${isCreator}`);
-        console.log(`  isExpert: ${isExpert}`);
-        console.log(`  user.publicMetadata.companyId: "${user?.publicMetadata?.companyId}"`);
-        console.log(`  hackathonResponse.data.companyId: "${hackathonResponse.data.companyId}"`);
-        console.log(`  isCompanyExpert: ${isCompanyExpert}`);
-        console.log(`  isAdmin: ${isAdmin}`);
-        console.log(`  Overall Check (!isCreator && !isAdmin && !isCompanyExpert): ${!isCreator && !isAdmin && !isCompanyExpert}`);
-
         if (!isCreator && !isAdmin && !isCompanyExpert) {
           setError('Unauthorized to review submissions for this hackathon.');
           setLoading(false);
           return;
         }
-
 
         const submissionsResponse = await axios.get<SubmissionDetail[]>(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/hackathons/${fetchedHackathonId}/submissions`,
@@ -115,6 +103,14 @@ export default function ReviewSubmissionPage() {
           setLoading(false);
           return;
         }
+
+        if (foundSubmission.status === 'REVIEWED_MANUAL') {
+          setError('This submission has already been reviewed.');
+          setTimeout(() => router.push(`/hackathons/${slug}/analytics`), 3000); 
+          setLoading(false);
+          return;
+        }
+
         setSubmission(foundSubmission);
 
         if (foundSubmission.manualReviewScore !== null && foundSubmission.manualReviewScore !== undefined) {
@@ -135,6 +131,18 @@ export default function ReviewSubmissionPage() {
       router.push('/login');
     }
   }, [slug, submissionId, isLoaded, isSignedIn, user, getToken, router, reset]);
+
+  
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
+        <p className="text-red-500 text-lg font-outfit mb-4">{error}</p>
+        <Link href={`/hackathons/${slug}/analytics`} className="text-yellow-300/70 hover:underline font-medium">
+          Back to Analytics
+        </Link>
+      </div>
+    );
+  }
 
   const onSubmitReview = async (data: ReviewFormData) => {
     if (!submission) {
