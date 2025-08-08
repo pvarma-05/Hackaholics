@@ -1,4 +1,4 @@
-# Hackaholics: The AI-Powered Hackathon Platform
+# Hackaholics: The Hackathon Platform
 
 ## Project Overview
 
