@@ -36,16 +36,6 @@ export default clerkMiddleware(async (auth, req) => {
     (sessionClaims as any)?.public_metadata;
 
 
-  // console.log('\n--- Middleware Auth Check ---');
-  // console.log('Path:', req.nextUrl.pathname);
-  // console.log('userId:', userId);
-  // console.log('sessionClaims (raw):', sessionClaims);
-  // console.log('Public Metadata from Claims (accessed via public_metadata):', publicMetadataFromClaims);
-  // console.log('Role from Public Metadata:', publicMetadataFromClaims?.role);
-  // console.log('Is Expert Route Match:', isExpertRoute(req));
-  // console.log('-------------------------------\n');
-
-
   if (!userId && !isPublicRoute(req)) {
     console.log("Middleware: Redirecting to sign-in - Not logged in.");
     return redirectToSignIn({ returnBackUrl: req.url });

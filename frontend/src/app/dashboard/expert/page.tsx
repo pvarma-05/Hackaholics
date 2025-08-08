@@ -294,7 +294,8 @@ export default function ExpertDashboardPage() {
                         View Details
                       </button>
                     </Link>
-                    <Link href={`/hackathons/${hackathon.id}/analytics`} className="flex-1">
+                    {/* In the render section, update the View Analytics button */}
+                    <Link href={`/hackathons/${hackathon.slug}/analytics`} className="flex-1">
                       <button className="bg-blue-300/70 hover:bg-blue-300/60 text-black font-semibold py-2 px-4 rounded-lg transition-colors duration-200 w-full">
                         View Analytics
                       </button>

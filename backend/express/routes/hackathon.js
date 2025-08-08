@@ -17,17 +17,16 @@ import {
 
 const router = express.Router();
 
+router.post('/', ClerkExpressWithAuth(), protect(['EXPERT', 'ADMIN']), createHackathon);
 router.get('/', getAllHackathons);
-router.get('/:hackathonId/analytics', ClerkExpressWithAuth(), protect(['EXPERT', 'ADMIN']), getHackathonAnalytics);
-router.get('/:hackathonId/participants', ClerkExpressWithAuth(), protect(['EXPERT', 'ADMIN']), getHackathonParticipants);
-router.get('/:hackathonId/submissions', ClerkExpressWithAuth(), protect(['EXPERT', 'ADMIN']), getHackathonSubmissions);
 router.get('/:slug', ClerkExpressWithAuth(), getHackathonBySlug);
-router.post('/', ClerkExpressWithAuth(), protect(['EXPERT']), createHackathon);
 router.patch('/:id', ClerkExpressWithAuth(), protect(['EXPERT', 'ADMIN']), updateHackathon);
 router.delete('/:id', ClerkExpressWithAuth(), protect(['EXPERT', 'ADMIN']), deleteHackathon);
-router.post('/:id/register', ClerkExpressWithAuth(), protect(['STUDENT']), registerForHackathon);
-router.post('/:id/submit', ClerkExpressWithAuth(), protect(['STUDENT']), submitProject);
-router.patch('/submissions/:id/review', ClerkExpressWithAuth(), protect(['EXPERT', 'ADMIN']), reviewSubmission);
-
+router.post('/:id/register', ClerkExpressWithAuth(), registerForHackathon);
+router.post('/:id/submit', ClerkExpressWithAuth(), submitProject);
+router.get('/:id/participants', ClerkExpressWithAuth(), protect(['EXPERT', 'ADMIN']), getHackathonParticipants);
+router.get('/:hackathonId/submissions', ClerkExpressWithAuth(), protect(['EXPERT', 'ADMIN']), getHackathonSubmissions);
+router.patch('/:id/review', ClerkExpressWithAuth(), protect(['EXPERT', 'ADMIN']), reviewSubmission);
+router.get('/:hackathonId/analytics', ClerkExpressWithAuth(), protect(['EXPERT', 'ADMIN']), getHackathonAnalytics);
 
 export default router;
